@@ -1,47 +1,164 @@
-/* Faz o layout ocupar toda a altura da tela */
-html, body {
-    height: 100%;
-    margin: 0;
-    background-color: #1c1c1c;
-    color: #f2f2f2;
-    display: flex;
-    flex-direction: column;
+/* =============== VARS / BASE =============== */
+:root{
+  --header-footer-bg: #000000;   /* cabeçalho/rodapé sempre preto */
+  --content-bg-dark: #0e0e0e;
+  --content-text-dark: #f5f5f5;
+  --register-bg-dark: #222222;   /* botão cadastre-se - dark */
+  --register-text-dark: #ffffff;
+
+  --content-bg-light: #ffffff;
+  --content-text-light: #111111;
+  --register-bg-light: #ffffff;  /* botão cadastre-se - light */
+  --register-text-light: #000000;
+
+  --link-color: inherit;
 }
 
-/* Wrapper principal */
-.wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+/* Detecta preferência do usuário — apenas altera conteúdo e botão.
+   HEADER e FOOTER permanecem pretos conforme solicitado. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --content-bg: var(--content-bg-light);
+    --content-text: var(--content-text-light);
+    --register-bg: var(--register-bg-light);
+    --register-text: var(--register-text-light);
+  }
+}
+@media (prefers-color-scheme: dark), (prefers-color-scheme: no-preference) {
+  :root {
+    --content-bg: var(--content-bg-dark);
+    --content-text: var(--content-text-dark);
+    --register-bg: var(--register-bg-dark);
+    --register-text: var(--register-text-dark);
+  }
 }
 
-/* O main se expande automaticamente para empurrar o footer */
-main {
-    flex: 1;
-    padding: 2rem;
+/* fallback if JS/CSS can't detect: dark by default */
+:root{
+  --content-bg: var(--content-bg-dark);
+  --content-text: var(--content-text-dark);
+  --register-bg: var(--register-bg-dark);
+  --register-text: var(--register-text-dark);
 }
 
-/* Footer sempre no fim */
-footer {
-    background-color: #111;
-    color: #ccc;
-    text-align: center;
-    padding: 1rem 0;
-    border-top: 1px solid #333;
+/* base */
+* { box-sizing: border-box; }
+html,body{
+  height:100%;
+  margin:0;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--content-bg);
+  color: var(--content-text);
+  -webkit-font-smoothing:antialiased;
 }
 
-/* Navbar */
-.navbar {
-    background-color: #111 !important;
+/* wrapper */
+.site-wrapper {
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
 }
 
-/* Ajustes nos botões */
-.btn-outline-light:hover {
-    background-color: #fff;
-    color: #111;
+/* ===== HEADER ===== */
+.site-header {
+  background: var(--header-footer-bg);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-/* Títulos e textos */
-h1, h2, h3, h4, h5 {
-    color: #f5f5f5;
+.site-header .navbar {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
 }
+
+/* Brand and link styles (brand clickable text-like) */
+.brand-link {
+  color: var(--content-text);
+  text-decoration:none;
+  font-weight:600;
+  font-size:1.05rem;
+}
+.nav-action {
+  color: var(--content-text);
+  text-decoration:none;
+  padding: 0.25rem 0.4rem;
+}
+.nav-action:hover { opacity:0.8; }
+
+/* ===== REGISTER BUTTON ===== */
+/* button looks like a pill, no caret shown */
+.btn-register {
+  background: var(--register-bg);
+  color: var(--register-text);
+  border: none;
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
+  font-weight:600;
+  box-shadow: none;
+}
+
+/* hide bootstrap caret/arrow on the button */
+.btn-register::after { display:none !important; }
+
+/* keep dropdown-menu functionality accessible but do not show caret */
+.btn-register:hover { filter: brightness(1.05); transform: translateY(-1px); transition: all .12s ease; }
+
+/* ===== MAIN ===== */
+/* main must occupy at least viewport minus header so footer stays below fold */
+.site-main {
+  min-height: calc(100vh - 64px); /* 64px ~ header height (good default) */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 2.5rem;
+  background: var(--content-bg);
+  color: var(--content-text);
+  text-align:center;
+}
+
+/* typography */
+.site-main h1 { font-size: 2.4rem; margin:0 0 .5rem; font-weight:700; color: var(--content-text); }
+.site-main p { margin:0; color: rgba( var(--rgb-content,0,0,0), 0.7); }
+
+/* ensure readable color in both themes: define rgb var */
+:root { --rgb-content: 245,245,245; }
+@media (prefers-color-scheme: light) { :root { --rgb-content: 17,17,17; } }
+
+/* ===== FOOTER ===== */
+/* Footer height = 100vh (ocupa a tela quando for rolado). Inicialmente fica abaixo do conteúdo. */
+.site-footer{
+  background: var(--header-footer-bg);
+  color: var(--content-text);
+  width:100%;
+  min-height:100vh;     /* ao rolar até aqui, cobre a tela inteira */
+  display:flex;
+  align-items:flex-end; /* conteúdo do footer alinhado embaixo */
+  border-top: none;
+}
+
+/* footer links: same style as header links (not blue) */
+.footer-link {
+  color: var(--content-text);
+  text-decoration: none;
+  margin-left: 1rem;
+  font-size: 0.95rem;
+}
+.footer-link:hover { opacity:0.8; }
+
+/* layout inside footer */
+.footer-left { align-self:flex-end; }
+.footer-right { display:flex; gap:0.5rem; align-items:center; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .site-main { padding: 2rem 1rem; min-height: calc(100vh - 56px); }
+  .brand-link { font-size: 1rem; }
+  .footer-right { gap:0.4rem; }
+  .btn-register { padding: 0.4rem .75rem; font-size:0.95rem; }
+}
+
+/* ===== UTIL: remove default link blue etc ===== */
+a { color: inherit; }
+a:hover { text-decoration: none; }

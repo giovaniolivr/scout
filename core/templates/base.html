@@ -2,40 +2,82 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Scout</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Fonte -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="wrapper">
-        <header>
-            <nav class="navbar navbar-dark bg-dark px-4">
-                <span class="navbar-brand mb-0 h1">Scout</span>
-                <div>
-                    <a href="#" class="btn btn-outline-light me-2">Login</a>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Cadastrar-se
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Candidato</a></li>
-                            <li><a class="dropdown-item" href="#">Empresa</a></li>
-                        </ul>
+    <div class="site-wrapper d-flex flex-column min-vh-100">
+
+        <!-- HEADER -->
+        <header class="site-header" id="site-header">
+            <nav class="navbar navbar-expand-lg px-4">
+                <div class="container-fluid d-flex align-items-center justify-content-between">
+
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Brand -->
+                        <a href="#" class="brand-link">Scout</a>
+
+                        <!-- Sobre (ao lado da marca) -->
+                        <div class="dropdown">
+                            <a class="nav-link nav-action" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Sobre
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="#">Quem somos</a></li>
+                                <li><a class="dropdown-item" href="#">O que oferecemos</a></li>
+                            </ul>
+                        </div>
                     </div>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Login: apenas texto clicável -->
+                        <a href="#" class="nav-link nav-action">Login</a>
+
+                        <!-- Botão Cadastre-se (botão simples, sem seta) -->
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-register" id="registerBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                Cadastre-se
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="#">Candidato</a></li>
+                                <li><a class="dropdown-item" href="#">Empresa</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
                 </div>
             </nav>
         </header>
 
-        <main class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center">
+        <!-- MAIN: ocupa pelo menos a altura total da viewport menos header -->
+        <main class="site-main flex-grow-1 d-flex align-items-center justify-content-center text-center">
             {% block content %}{% endblock %}
         </main>
 
-        <footer class="footer mt-auto py-3 bg-dark text-light text-center">
-            <p class="mb-0">© 2025 Scout. Todos os direitos reservados.</p>
+        <!-- FOOTER: tem altura 100vh, mas fica abaixo do conteúdo (aparece só ao rolar) -->
+        <footer class="site-footer d-flex align-items-end">
+            <div class="container-fluid px-4 py-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <div class="footer-left">
+                    <small>© 2025 Scout. Todos os direitos reservados.</small>
+                </div>
+                <div class="footer-right mt-2 mt-md-0">
+                    <a href="#" class="footer-link">Privacidade</a>
+                    <a href="#" class="footer-link">Acessibilidade</a>
+                    <a href="#" class="footer-link">Termos</a>
+                </div>
+            </div>
         </footer>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
