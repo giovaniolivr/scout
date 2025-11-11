@@ -1,0 +1,23 @@
+body {
+    background-color: #121212;
+    color: #f1f1f1;
+    font-family: 'Inter', sans-serif;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background-color: #6a0dad;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #8133d3;
+}
+
+footer {
+    border-top: 1px solid #222;
+}
