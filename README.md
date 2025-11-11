@@ -8,15 +8,6 @@ O **Scout** é uma plataforma desenvolvida com **Django**, voltada para conectar
 - HTML5, CSS3 e Bootstrap
 - JavaScript
 
-## Estrutura do projeto
- scout
-┣ 📂 scout_project → Configurações principais do Django
-┣ 📂 static → Arquivos estáticos (CSS, JS, imagens)
-┣ 📂 templates → Templates HTML
-┣ 📜 manage.py
-┣ 📜 requirements.txt
-┗ 📜 README.md
-
 ## Como rodar o projeto localmente
 ```bash
 # Clonar o repositório
