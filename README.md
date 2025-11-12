@@ -11,7 +11,7 @@ O **Scout** é uma plataforma desenvolvida com **Django**, voltada para conectar
 ## Como rodar o projeto localmente
 ```bash
 # Clonar o repositório
-git clone https://github.com/seuusuario/scout.git
+git clone https://github.com/giovaniolivr/scout.git
 
 # Acessar a pasta
 cd scout
