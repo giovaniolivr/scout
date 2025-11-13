@@ -36,7 +36,7 @@ function handleCodeSubmit(event) {
     const code = Array.from(inputs).map(i => i.value.trim()).join('');
 
     if (code === '1111') {
-        window.location.href = "{% url 'register_details' %}";
+        window.location.href = "{% url 'register_details_candidate' %}";
     } else {
         alert('Código incorreto. Tente novamente.');
 

@@ -8,7 +8,7 @@ def register_candidate(request):
 
 def verify_email(request):
     email = request.GET.get('email', '')
-    return render(request, 'verify_email.html', {'email': email,'hide_nav_links': True})
+    return render(request, 'verify_email_candidate.html', {'email': email,'hide_nav_links': True})
 
 def register_details(request):
-    return render(request, 'register_details.html', {'hide_nav_links': True})
+    return render(request, 'register_details_candidate.html', {'hide_nav_links': True})
