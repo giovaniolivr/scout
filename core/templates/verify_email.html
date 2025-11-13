@@ -36,8 +36,7 @@ function handleCodeSubmit(event) {
     const code = Array.from(inputs).map(i => i.value.trim()).join('');
 
     if (code === '1111') {
-        alert('Código verificado com sucesso! (mock)');
-        // futura navegação para o cadastro real aqui
+        window.location.href = "{% url 'register_details' %}";
     } else {
         alert('Código incorreto. Tente novamente.');
 
@@ -55,6 +54,8 @@ document.querySelectorAll('.code-box').forEach((box, i, arr) => {
         if (box.value && i < arr.length - 1) arr[i + 1].focus();
     });
 });
+
+document.querySelector('.code-form').addEventListener('submit', checkCode);
 </script>
 {% endblock %}
 

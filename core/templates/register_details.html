@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-inner register-large">
+        <h4>Complete seu cadastro para continuar</h4>
+        <form class="register-form" onsubmit="return handleRegister(event)">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" class="form-control email-input" placeholder="Nome" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control email-input" placeholder="Sobrenome" required>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="text" id="cep" class="form-control email-input" placeholder="CEP" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="cidade" class="form-control email-input" placeholder="Cidade" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="bairro" class="form-control email-input" placeholder="Bairro" required>
+                </div>
+
+                <div class="col-md-8">
+                    <input type="text" id="endereco" class="form-control email-input" placeholder="Endereço" required>
+                </div>
+                <div class="col-md-4 position-relative">
+                    <input type="text" id="numero" class="form-control email-input" placeholder="Número" required autocomplete="off">
+                </div>
+
+                <div class="col-md-6">
+                    <input type="text" class="form-control email-input" placeholder="CPF" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="tel" class="form-control email-input" placeholder="Telefone" required>
+                </div>
+
+                <div class="col-md-6">
+                    <input type="password" class="form-control email-input" placeholder="Senha" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="password" class="form-control email-input" placeholder="Confirmar Senha" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-black w-100 mt-4">Concluir cadastro</button>
+        </form>
+    </div>
+</div>
+
+<script>
+
+// ===========================
+//  CONSULTA DE CEP
+// ===========================
+document.getElementById('cep').addEventListener('blur', function() {
+    const cep = this.value.replace(/\D/g, '');
+    if (cep.length === 8) {
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.erro) {
+                    document.getElementById('cidade').value = data.localidade || '';
+                    document.getElementById('bairro').value = data.bairro || '';
+                    document.getElementById('endereco').value = data.logradouro || '';
+                } else {
+                    showError(this, "CEP não encontrado.");
+                }
+            })
+            .catch(() => showError(this, "Erro ao buscar o CEP."));
+    } else if (cep.length > 0 && cep.length < 8) {
+        showError(this, "Formato inválido: digite 8 números.");
+    }
+});
+
+// ===========================
+//  VALIDAÇÕES DE CAMPOS NUMÉRICOS
+// ===========================
+function onlyNumbers(input, length = null) {
+    input.addEventListener('input', () => {
+        let value = input.value.replace(/\D/g, '');
+        if (length && value.length > length) value = value.slice(0, length);
+        input.value = value;
+    });
+}
+
+function showError(input, message) {
+    let alert = input.parentNode.querySelector('.input-error');
+    if (!alert) {
+        alert = document.createElement('small');
+        alert.className = 'input-error';
+        alert.style.color = '#f66';
+        alert.style.display = 'block';
+        alert.style.marginTop = '4px';
+        input.parentNode.appendChild(alert);
+    }
+    alert.textContent = message;
+}
+
+function clearError(input) {
+    const alert = input.parentNode.querySelector('.input-error');
+    if (alert) alert.remove();
+}
+
+// CPF, CEP e número: apenas números
+onlyNumbers(document.getElementById('cep'), 8);
+const cpfInput = document.querySelector('input[placeholder="CPF"]');
+onlyNumbers(cpfInput, 11);
+onlyNumbers(document.getElementById('numero'));
+
+// Remove mensagens ao focar novamente
+[cpfInput, document.getElementById('cep')].forEach(inp => {
+    inp.addEventListener('focus', () => clearError(inp));
+});
+
+// =======================
+//  TELEFONE COM +55 FIXO 
+// =======================
+const telefoneInput = document.querySelector('input[placeholder="Telefone"]');
+window.addEventListener('DOMContentLoaded', () => {
+    telefoneInput.value = '+55 ';
+});
+telefoneInput.addEventListener('keydown', (e) => {
+    if (telefoneInput.selectionStart <= 3 && (e.key === 'Backspace' || e.key === 'Delete')) {
+        e.preventDefault();
+    }
+});
+telefoneInput.addEventListener('input', () => {
+    if (!telefoneInput.value.startsWith('+55')) {
+        telefoneInput.value = '+55 ';
+    }
+    let cleaned = telefoneInput.value.replace(/[^\d+]/g, '');
+    telefoneInput.value = cleaned.replace(
+        /(\+55)(\d{0,2})(\d{0,5})(\d{0,4}).*/,
+        (_, p1, ddd, parte1, parte2) => {
+            let formatted = p1;
+            if (ddd) formatted += ' (' + ddd;
+            if (ddd.length === 2) formatted += ')';
+            if (parte1) formatted += ' ' + parte1;
+            if (parte2) formatted += '-' + parte2;
+            return formatted;
+        }
+    );
+});
+
+// ===========================
+//  VALIDAÇÃO DE SENHA
+// ===========================
+function validarSenha(senha, confirmarSenha) {
+    const senhaInput = document.querySelector('input[placeholder="Senha"]');
+    const confirmarInput = document.querySelector('input[placeholder="Confirmar Senha"]');
+    clearError(senhaInput);
+    clearError(confirmarInput);
+
+    const regexMaiuscula = /[A-Z]/;
+    const regexEspecial = /[!@#$%^&*(),.?":{}|<>]/;
+
+    if (senha.length < 8) {
+        showError(senhaInput, "A senha deve ter no mínimo 8 caracteres.");
+        return false;
+    }
+    if (!regexMaiuscula.test(senha)) {
+        showError(senhaInput, "A senha deve conter pelo menos uma letra maiúscula.");
+        return false;
+    }
+    if (!regexEspecial.test(senha)) {
+        showError(senhaInput, "A senha deve conter pelo menos um caractere especial.");
+        return false;
+    }
+    if (senha !== confirmarSenha) {
+        showError(confirmarInput, "As senhas não coincidem.");
+        return false;
+    }
+
+    return true;
+}
+
+// ===========================
+//  VALIDAÇÃO DE CPF E TELEFONE
+// ===========================
+function validarCPF(cpfInput) {
+    clearError(cpfInput);
+    const cpf = cpfInput.value.replace(/\D/g, '');
+
+    if (cpf.length !== 11) {
+        showError(cpfInput, "O CPF deve conter exatamente 11 números.");
+        return false;
+    }
+
+    return true;
+}
+
+function validarTelefone(telefoneInput) {
+    clearError(telefoneInput);
+    const numeroLimpo = telefoneInput.value.replace(/\D/g, ''); // remove tudo que não for número
+    const ddd = numeroLimpo.slice(2, 4); // DDD (depois do +55)
+    const numero = numeroLimpo.slice(4); // o restante
+
+    // Verifica se o formato tem DDD (2 dígitos) e 9 dígitos no número
+    if (ddd.length !== 2 || numero.length !== 9) {
+        showError(telefoneInput, "O telefone deve conter DDD (2 dígitos) + 9 números.");
+        return false;
+    }
+
+    return true;
+}
+
+// ===========================
+//  INTEGRA TODAS AS VALIDAÇÕES
+// ===========================
+function handleRegister(event) {
+    event.preventDefault();
+
+    const senha = document.querySelector('input[placeholder="Senha"]').value;
+    const confirmarSenha = document.querySelector('input[placeholder="Confirmar Senha"]').value;
+    const cpfInput = document.querySelector('input[placeholder="CPF"]');
+    const telefoneInput = document.querySelector('input[placeholder="Telefone"]');
+
+    let senhaValida = validarSenha(senha, confirmarSenha);
+    let cpfValido = validarCPF(cpfInput);
+    let telefoneValido = validarTelefone(telefoneInput);
+
+    if (senhaValida && cpfValido && telefoneValido) {
+        window.location.href = "{% url 'home' %}";
+    }
+}
+</script>
+{% endblock %}
+
+{% block footer %}{% endblock %}
