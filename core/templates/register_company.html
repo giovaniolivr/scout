@@ -68,13 +68,13 @@ function validarCNPJ(cnpjInput) {
 function handleCompanyRegister(event) {
     event.preventDefault();
 
-    const email = document.getElementById('company-email');
+    const email = document.getElementById('company-email').value.trim();
     const cnpjValido = validarCNPJ(cnpjInput);
 
-    if (cnpjValido) {
-        // no futuro aqui vai enviar o e-mail de verificação
-        window.location.href = "{% url 'register_details_company' %}";
-    }
+    if (!cnpjValido) return;
+
+    // redireciona corretamente COM email
+    window.location.href = `/register/company/details/?email=${encodeURIComponent(email)}`;
 }
 </script>
 {% endblock %}

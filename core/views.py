@@ -17,4 +17,9 @@ def register_company(request):
     return render(request, 'register_company.html', {'hide_nav_links': True})
 
 def register_details_company(request):
-    return render(request, 'register_details_company.html', {'hide_nav_links': True})
+    email = request.GET.get('email', '')
+    return render(request, 'register_details_company.html', {'email': email, 'hide_nav_links': True})
+
+def verify_email_company(request):
+    email = request.GET.get('email', '')
+    return render(request, 'verify_email_company.html', {'email': email, 'hide_nav_links': True})

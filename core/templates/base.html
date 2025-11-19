@@ -20,36 +20,57 @@
                     <a class="navbar-brand fw-bold text-white text-decoration-none" href="{% if user_is_candidate %}{% url 'home_candidate' %}{% else %}{% url 'home' %}{% endif %}">Scout</a>
 
                     {% if user_is_candidate %}
-                    <div class="d-flex align-items-center">
-                        <a href="#" class="nav-link text-white me-3">Procurar vagas</a>
-                        <div class="dropdown">
-                            <button class="btn btn-register dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="me-2">Nome</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><h6 class="dropdown-header">Nome<br><small>nome@email.com</small></h6></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Configurações da conta</a></li>
-                                <li><a class="dropdown-item" href="#">Editar perfil</a></li>
-                                <li><a class="dropdown-item" href="#">Vagas aplicadas</a></li>
-                                <li><a class="dropdown-item" href="#">Histórico de avaliações</a></li>
-                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Sair</a></li>
-                            </ul>
+                        <!-- HEADER DO CANDIDATO -->
+                        <div class="d-flex align-items-center">
+                            <a href="#" class="nav-link text-white me-3">Procurar vagas</a>
+                            <div class="dropdown">
+                                <button class="btn btn-register dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                                    <span class="me-2">Nome</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><h6 class="dropdown-header">Nome<br><small>nome@email.com</small></h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Configurações da conta</a></li>
+                                    <li><a class="dropdown-item" href="#">Editar perfil</a></li>
+                                    <li><a class="dropdown-item" href="#">Vagas aplicadas</a></li>
+                                    <li><a class="dropdown-item" href="#">Histórico de avaliações</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Sair</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
+
+                    {% elif user_is_company %}
+                        <!-- HEADER DA EMPRESA -->
+                        <div class="d-flex align-items-center">
+                            <a href="#" class="nav-link text-white me-3">Listar vaga</a>
+                            <div class="dropdown">
+                                <button class="btn btn-register dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                                    <span class="me-2">Empresa</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><h6 class="dropdown-header">Empresa<br><small>empresa@email.com</small></h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Configurações da conta</a></li>
+                                    <li><a class="dropdown-item" href="#">Editar perfil</a></li>
+                                    <li><a class="dropdown-item" href="#">Vagas listadas</a></li>
+                                    <li><a class="dropdown-item" href="#">Histórico de avaliações</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Sair</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
                     {% elif not hide_nav_links %}
-                    <div class="d-flex align-items-center">
-                        <a href="#" class="nav-link text-white me-3">Login</a>
-                        <div class="dropdown">
-                            <button type="button" class="btn btn-register dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                Cadastre-se
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'register_candidate' %}">Candidato</a></li>
-                                <li><a class="dropdown-item" href="{% url 'register_company' %}">Empresa</a></li>
-                            </ul>
+                        <!-- HEADER PARA VISITANTES (LOGIN / cadastre-se) -->
+                        <div class="d-flex align-items-center">
+                            <a href="#" class="nav-link text-white me-3">Login</a>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-register dropdown-toggle" data-bs-toggle="dropdown">Cadastre-se</button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{% url 'register_candidate' %}">Candidato</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'register_company' %}">Empresa</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
                     {% endif %}
                 </div>
             </nav>

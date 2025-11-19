@@ -57,6 +57,9 @@
 </div>
 
 <script>
+
+const email = "{{ email }}";
+
 /* ---------------------------
    helpers: erros e onlyNumbers
    --------------------------- */
@@ -247,8 +250,7 @@ function handleCompanyDetails(event) {
 
     if (cnpjOk && cpfOk && senhasOk && telefoneOk) {
         // tudo validado: mock comportamento (no futuro: salvar/redirect)
-        // por enquanto vamos direcionar pra home (ou trocar para a rota que preferir)
-        window.location.href = "#";
+        window.location.href = `/verify/company/?email=${encodeURIComponent(email)}`;
     } else {
         // foca no primeiro campo com erro (opcional)
         const firstError = document.querySelector('.input-error');
