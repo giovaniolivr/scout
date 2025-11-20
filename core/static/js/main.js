@@ -284,7 +284,9 @@ function initVerifyCandidate() {
 
     boxes.forEach((box, i) => {
         box.addEventListener("input", () => {
-            if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+            if (box.value && i < boxes.length - 1) {
+                boxes[i + 1].focus();
+            }
         });
     });
 
@@ -295,18 +297,20 @@ function initVerifyCandidate() {
 
         if (code === "1111") {
             window.location.href = "/register/candidate/details/";
-        } else {
-            alert("Código incorreto.");
-            boxes.forEach(b => (b.value = ""));
-            boxes[0].focus();
+            return;
         }
+
+        alert("Código incorreto.");
+        boxes.forEach(b => (b.value = ""));
+        boxes[0].focus();
+        return;
     });
 }
 
 // Verify Company
 function initVerifyCompany() {
-    const resend = document.getElementById("resend-btn");
-    const verified = document.getElementById("verified-btn");
+    const resend = document.getElementById("company-resend-btn");
+    const verify = document.getElementById("verify-company-btn");
 
     if (resend) {
         resend.addEventListener("click", () => {
@@ -314,12 +318,13 @@ function initVerifyCompany() {
         });
     }
 
-    if (verified) {
-        verified.addEventListener("click", () => {
+    if (verify) {
+        verify.addEventListener("click", () => {
             window.location.href = "/company/home/";
         });
     }
 }
+
 
 /* ======================================================================
    INICIALIZA TODOS (mas só ativa o que existe na página)
