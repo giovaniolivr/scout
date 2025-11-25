@@ -1,9 +1,65 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="candidate-home-container">
-    <h2>Bem-vindo(a)!</h2>
-    <p>Explore novas oportunidades e acompanhe seu progresso.</p>
+<div class="candidate-dashboard">
+
+    <h2 class="dashboard-title">Bem-vindo, Candidato!</h2>
+    <p class="dashboard-subtitle">Explore oportunidades e acompanhe seu desempenho.</p>
+
+    <div class="dashboard-grid">
+
+        <!-- Painel: Vagas recomendadas -->
+        <section class="dashboard-card">
+            <h3 class="panel-title">Vagas Recomendadas</h3>
+
+            <div class="job-item">
+                <h4>Desenvolvedor Front-End Jr</h4>
+                <p>Empresa: TechGlobal</p>
+                <button class="btn btn-gray w-100 mt-2">Ver detalhes</button>
+            </div>
+
+            <div class="job-item">
+                <h4>QA Tester Jr</h4>
+                <p>Empresa: QASolutions</p>
+                <button class="btn btn-gray w-100 mt-2">Ver detalhes</button>
+            </div>
+
+            <button class="btn btn-black w-100 mt-3">Ver todas vagas</button>
+        </section>
+
+        <!-- Painel: Feedbacks recentes -->
+        <section class="dashboard-card">
+            <h3 class="panel-title">Feedbacks Recentes</h3>
+
+            <div class="feedback-item">
+                <p><strong>TechGlobal</strong></p>
+                <p class="feedback-text">“Boa comunicação e ótima postura na entrevista.”</p>
+            </div>
+
+            <div class="feedback-item">
+                <p><strong>Digital Labs</strong></p>
+                <p class="feedback-text">“Perfil promissor, recomendamos melhorar lógica.”</p>
+            </div>
+
+            <button class="btn btn-gray w-100 mt-3">Ver tudo</button>
+        </section>
+
+        <!-- Painel: Score do candidato -->
+        <section class="dashboard-card score-card">
+            <h3 class="panel-title">Seu Score Scout</h3>
+
+            <div class="score-circle">
+                <span>82</span>
+            </div>
+
+            <p class="score-description">Seu desempenho geral é considerado <strong>muito bom</strong>! Continue assim.</p>
+        </section>
+
+    </div>
 </div>
 {% endblock %}
