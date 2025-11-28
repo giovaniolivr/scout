@@ -325,6 +325,44 @@ function initVerifyCompany() {
     }
 }
 
+function initLogin() {
+    const form = document.getElementById("login-form");
+    if (!form) return;
+
+    const emailInput = document.getElementById("login-email");
+    const passwordInput = document.getElementById("login-password");
+
+    console.log("initLogin carregado");
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        console.log("submit disparou");
+
+        // Validação simples
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!pattern.test(email)) {
+            alert("Digite um e-mail válido.");
+            return;
+        }
+
+        if (password.length < 1) {
+            alert("Digite sua senha.");
+            return;
+        }
+
+        // MOCK TEMPORÁRIO DE REDIRECIONAMENTO
+        if (email.toLowerCase().includes("empresa")) {
+            window.location.href = "/company/home/";
+        } else {
+            window.location.href = "/candidate/home/";
+        }
+    });
+}
 
 /* ======================================================================
    INICIALIZA TODOS (mas só ativa o que existe na página)
@@ -338,4 +376,5 @@ document.addEventListener("DOMContentLoaded", () => {
     initDetailsCompany();
     initVerifyCandidate();
     initVerifyCompany();
+    initLogin();
 });

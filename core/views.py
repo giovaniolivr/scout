@@ -23,3 +23,6 @@ def register_details_company(request):
 def verify_email_company(request):
     email = request.GET.get('email', '')
     return render(request, 'verify_email_company.html', {'email': email, 'hide_nav_links': True})
+
+def login_view(request):
+    return render(request, 'login.html', {'hide_nav_links': True})

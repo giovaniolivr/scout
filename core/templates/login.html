@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-inner">
+        <h2>Entre na sua conta</h2>
+
+        <form id="login-form">
+            <input 
+                type="email" 
+                id="login-email" 
+                class="form-control email-input mb-3" 
+                placeholder="Digite seu e-mail" 
+                required
+            >
+
+            <input 
+                type="password" 
+                id="login-password" 
+                class="form-control email-input mb-4" 
+                placeholder="Digite sua senha" 
+                required
+            >
+
+            <button type="submit" class="btn btn-black w-100">Entrar</button>
+        </form>
+
+        <p class="terms mt-4">
+            Ao continuar, você concorda com os Termos de Uso e Política de Privacidade da Scout.
+        </p>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}{% endblock %}
