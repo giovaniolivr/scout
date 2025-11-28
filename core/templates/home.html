@@ -1,8 +1,175 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="text-center">
-    <h1>Scout</h1>
-    <p>Conectando talentos e empresas com propósito.</p>
+<div class="container py-5">
+
+    <!-- HERO -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Construa sua reputação. Conquiste sua vaga.</h1>
+        <p class="lead text-muted">
+            Receba feedbacks, aumente seu Score e seja encontrado por empresas.
+        </p>
+        <a href="{% url 'register_candidate' %}" class="btn btn-black btn-lg mt-3">Começar agora</a>
+    </div>
+
+    <!-- COMO FUNCIONA -->
+    <div class="row text-center g-4 my-5">
+        <div class="col-md-4">
+            <div class="p-4 h-100 bg-dark rounded shadow-sm text-white">
+                <h4 class="fw-bold">1. Mostre suas habilidades</h4>
+                <p>Crie seu perfil e destaque suas soft e hard skills.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 h-100 bg-dark rounded shadow-sm text-white">
+                <h4 class="fw-bold">2. Receba feedback real</h4>
+                <p>Empresas e recrutadores avaliam seu desempenho.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 h-100 bg-dark rounded shadow-sm text-white">
+                <h4 class="fw-bold">3. Aumente seu Score</h4>
+                <p>Quanto maior sua reputação, mais destaque nas vagas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÉTRICAS MOCKADAS -->
+    <div class="row text-center my-5">
+        <div class="col-md-4">
+            <h2 class="fw-bold">+2.400</h2>
+            <p class="text-muted">feedbacks na plataforma</p>
+        </div>
+        <div class="col-md-4">
+            <h2 class="fw-bold">+320</h2>
+            <p class="text-muted">empresas conectadas</p>
+        </div>
+        <div class="col-md-4">
+            <h2 class="fw-bold">82</h2>
+            <p class="text-muted">score médio dos talentos</p>
+        </div>
+    </div>
+
+    <!-- EMPRESAS PARCEIRAS (FICTÍCIAS) -->
+    <div class="text-center my-5">
+        <h3 class="fw-bold mb-4">Empresas Parceiras</h3>
+
+        <img src="{% static 'images/ibm_logo.png' %}" style="max-width: 10%; margin-right: 15px;">
+        <img src="{% static 'images/google_icon.png' %}" style="max-width: 8%; margin-right: 25px;">
+        <img src="{% static 'images/linkedin_icon.png' %}" style="max-width: 6%;">
+        
+        <p class="text-muted mt-2">Logos fictícios utilizadas apenas para o MVP.</p>
+    </div>
+
+    <!-- VAGAS EM DESTAQUE -->
+    <h3 class="fw-bold mt-5 mb-3 text-center">Vagas em destaque</h3>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="p-4 bg-dark rounded shadow-sm text-white">
+                <h5>Desenvolvedor Backend Jr</h5>
+                <p class="mb-1">TechCorp • Remoto</p>
+                <p class="small mb-3 text-muted" style="color:#bbb !important;">Score recomendado: 75+</p>
+                <button class="btn btn-gray w-100">Ver vaga</button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 bg-dark rounded shadow-sm text-white">
+                <h5>Analista de QA</h5>
+                <p class="mb-1">QualityLabs • São Paulo</p>
+                <p class="small mb-3 text-muted" style="color:#bbb !important;">Score recomendado: 80+</p>
+                <button class="btn btn-gray w-100">Ver vaga</button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-4 bg-dark rounded shadow-sm text-white">
+                <h5>Dev Frontend Pleno</h5>
+                <p class="mb-1">NovaSoft • Híbrido</p>
+                <p class="small mb-3 text-muted" style="color:#bbb !important;">Score recomendado: 85+</p>
+                <button class="btn btn-gray w-100">Ver vaga</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEPOIMENTOS -->
+    <div class="text-center my-5">
+        <h3 class="fw-bold mb-4">Depoimentos</h3>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <p class="fst-italic">
+                    “Consegui minha primeira vaga usando o Scout.  
+                    O sistema de score me ajudou muito!”
+                </p>
+                <small>— João, Desenvolvedor Jr</small>
+            </div>
+
+            <div class="col-md-4">
+                <p class="fst-italic">
+                    “Recebi feedbacks valiosos que me ajudaram  
+                    a melhorar para entrevistas reais.”
+                </p>
+                <small>— Ana, QA Trainee</small>
+            </div>
+
+            <div class="col-md-4">
+                <p class="fst-italic">
+                    “Encontrei talentos incríveis pelo Score e  
+                    validação de habilidades.”
+                </p>
+                <small>— Carlos, Recrutador</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA FINAL -->
+    <div class="text-center mt-5 mb-5">
+        <h2 class="fw-bold">Pronto para evoluir sua carreira?</h2>
+        <p class="text-muted">Crie seu perfil e receba seu primeiro feedback.</p>
+        <a href="{% url 'register_candidate' %}" class="btn btn-black btn-lg">Criar conta gratuita</a>
+    </div>
+    
+    <!-- SESSÃO PARA EMPRESAS -->
+    <div class="my-5 pt-4">
+        <h2 class="fw-bold text-center mb-4">Para Empresas</h2>
+
+        <p class="text-center text-muted mb-5">
+            Conecte-se com talentos qualificados e avalie candidatos de forma justa e eficiente.
+        </p>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded shadow-sm text-white h-100">
+                    <h5>Encontre talentos qualificados</h5>
+                    <p>Busque candidatos com base em Score real e histórico de feedback.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded shadow-sm text-white h-100">
+                    <h5>Avalie candidatos facilmente</h5>
+                    <p>Sistema simples para enviar avaliações e auxiliar na triagem.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded shadow-sm text-white h-100">
+                    <h5>Ganhe visibilidade na plataforma</h5>
+                    <p>Mostre sua marca e atraia talentos de acordo com sua cultura.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'register_company' %}" class="btn btn-black btn-lg">
+                Cadastrar empresa
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

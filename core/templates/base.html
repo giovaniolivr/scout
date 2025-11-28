@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scout</title>
+    <!-- Fonte moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Fonte moderna -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="wrapper">
@@ -95,13 +97,52 @@
 
         <!-- FOOTER -->
         {% block footer %}
-        <footer class="footer mt-auto py-3">
-            <div class="footer-inner d-flex justify-content-between align-items-center">
-                <span>© 2025 Scout. Todos os direitos reservados.</span>
-                <div class="footer-links">
+        <footer class="footer mt-auto">
+            <div class="footer-top">
+                <div class="footer-column">
+                    <h5 class="footer-title">Scout</h5>
+                    <ul class="footer-list">
+                        <li><a href="#">Site Institucional</a></li>
+                        <li><a href="#">Fale Conosco</a></li>
+                        <li><a href="#">Conta e Segurança</a></li>
+                        <li><a href="#">Carreiras</a></li>
+                        <li><a href="#">Empresas</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h5 class="footer-title">Descubra</h5>
+                    <ul class="footer-list">
+                        <li><a href="#">Cadastre sua Empresa</a></li>
+                        <li><a href="#">Como Funciona</a></li>
+                        <li><a href="#">Vagas em Destaque</a></li>
+                        <li><a href="#">Guia de Score</a></li>
+                        <li><a href="#">Blog Scout</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h5 class="footer-title">Social</h5>
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider">
+
+            <div class="footer-bottom">
+                <p class="footer-copy">© 2025 Scout. Todos os direitos reservados.</p>
+
+                <div class="footer-bottom-links">
+                    <a href="#">Termos e condições de uso</a>
+                    <a href="#">Código de conduta</a>
                     <a href="#">Privacidade</a>
+                    <a href="#">Dicas de segurança</a>
                     <a href="#">Acessibilidade</a>
-                    <a href="#">Termos</a>
                 </div>
             </div>
         </footer>
