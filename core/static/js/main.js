@@ -235,9 +235,101 @@ function initDetailsCompany() {
     });
 }
 
+// Verify Candidate (4 digits)
+function initVerifyCandidate() {
+    const form = document.getElementById("verify-candidate-form");
+    if (!form) return;
+
+    const boxes = document.querySelectorAll(".code-box");
+
+    boxes.forEach((box, i) => {
+        box.addEventListener("input", () => {
+            if (box.value && i < boxes.length - 1) {
+                boxes[i + 1].focus();
+            }
+        });
+    });
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        const code = [...boxes].map(i => i.value).join("");
+
+        if (code === "1111") {
+            window.location.href = "/register/candidate/details/";
+            return;
+        }
+
+        alert("Código incorreto.");
+        boxes.forEach(b => (b.value = ""));
+        boxes[0].focus();
+        return;
+    });
+}
+
+// Verify Company
+function initVerifyCompany() {
+    const resend = document.getElementById("company-resend-btn");
+    const verify = document.getElementById("verify-company-btn");
+
+    if (resend) {
+        resend.addEventListener("click", () => {
+            alert(`Novo e-mail enviado (mock).`);
+        });
+    }
+
+    if (verify) {
+        verify.addEventListener("click", () => {
+            window.location.href = "/company/home/";
+        });
+    }
+}
+
+function initLogin() {
+    const form = document.getElementById("login-form");
+    if (!form) return;
+
+    const emailInput = document.getElementById("login-email");
+    const passwordInput = document.getElementById("login-password");
+
+    console.log("initLogin carregado");
+
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        console.log("submit disparou");
+
+        // Validação simples
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!pattern.test(email)) {
+            alert("Digite um e-mail válido.");
+            return;
+        }
+
+        if (password.length < 1) {
+            alert("Digite sua senha.");
+            return;
+        }
+
+        // MOCK TEMPORÁRIO DE REDIRECIONAMENTO
+        if (email.toLowerCase().includes("empresa")) {
+            window.location.href = "/company/home/";
+        } else {
+            window.location.href = "/candidate/home/";
+        }
+    });
+}
+
 /* ======================================================================
    INICIALIZAÇÃO GLOBAL
 ====================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
     initDetailsCompany();
+    initVerifyCandidate();
+    initVerifyCompany();
+    initLogin();
 });
