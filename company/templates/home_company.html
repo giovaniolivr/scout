@@ -8,7 +8,7 @@
 {% block content %}
 <div class="company-dashboard">
 
-    <h2 class="dashboard-title">Painel da Empresa</h2>
+    <h2 class="dashboard-title">Painel — {{ request.user.company_profile.company_name }}</h2>
     <p class="dashboard-subtitle">Acompanhe suas vagas e visualize talentos em destaque.</p>
 
     <div class="dashboard-grid">

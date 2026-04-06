@@ -6,20 +6,25 @@
     <div class="register-inner">
         <h2>Entre na sua conta</h2>
 
-        <form id="login-form">
-            <input 
-                type="email" 
-                id="login-email" 
-                class="form-control email-input mb-3" 
-                placeholder="Digite seu e-mail" 
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <input
+                type="email"
+                name="email"
+                id="login-email"
+                class="form-control email-input mb-3"
+                placeholder="Digite seu e-mail"
+                value="{{ request.POST.email }}"
                 required
             >
 
-            <input 
-                type="password" 
-                id="login-password" 
-                class="form-control email-input mb-4" 
-                placeholder="Digite sua senha" 
+            <input
+                type="password"
+                name="password"
+                id="login-password"
+                class="form-control email-input mb-4"
+                placeholder="Digite sua senha"
                 required
             >
 

@@ -5,9 +5,20 @@
 <div class="register-container">
     <div class="register-inner">
         <h2>Qual é o seu endereço de e-mail?</h2>
-        
-        <form class="register-form" id="candidate-email-form">
-            <input id="emailInput" type="email" class="form-control email-input mb-3" placeholder="Digite seu e-mail" required>
+
+        <form method="post" action="{% url 'register_candidate' %}">
+            {% csrf_token %}
+
+            <input
+                type="email"
+                name="email"
+                id="emailInput"
+                class="form-control email-input mb-3"
+                placeholder="Digite seu e-mail"
+                value="{{ request.POST.email }}"
+                required
+            >
+
             <button type="submit" class="btn btn-black w-100 mb-4">Continuar</button>
         </form>
 
@@ -19,7 +30,7 @@
                 Fazer login com o Google
             </button>
             <button class="btn btn-social">
-                <img src="{% static 'images/linkedin_icon.png' %}" alt="Apple" class="icon">
+                <img src="{% static 'images/linkedin_icon.png' %}" alt="LinkedIn" class="icon">
                 Fazer login com o LinkedIn
             </button>
         </div>

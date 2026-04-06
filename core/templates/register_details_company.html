@@ -6,48 +6,66 @@
     <div class="register-inner register-large">
         <h4>Complete o cadastro da sua empresa para prosseguir</h4>
 
-        <form class="register-form" id="company-details-form" data-email="{{ email }}">
+        <form method="post" action="{% url 'register_details_company' %}" id="company-details-form" class="register-form">
+            {% csrf_token %}
+
             <div class="row g-3">
 
                 <div class="col-md-6">
-                    <input type="text" id="company-name" class="form-control email-input" placeholder="Nome da Empresa" required>
+                    <input type="text" name="company_name" id="company-name" class="form-control email-input"
+                        placeholder="Nome da Empresa" value="{{ form_data.company_name }}" required>
+                    {% if errors.company_name %}<small class="input-error">{{ errors.company_name }}</small>{% endif %}
                 </div>
 
                 <div class="col-md-6">
-                    <input type="text" id="cpf" class="form-control email-input" placeholder="CPF" required>
+                    <input type="text" name="cpf_responsible" id="cpf" class="form-control email-input"
+                        placeholder="CPF do Responsável" value="{{ form_data.cpf_responsible }}" required>
+                    {% if errors.cpf_responsible %}<small class="input-error">{{ errors.cpf_responsible }}</small>{% endif %}
                 </div>
 
                 <div class="col-md-12">
-                    <input type="text" id="responsavel" class="form-control email-input" placeholder="Nome do Responsável" required>
+                    <input type="text" name="responsible_name" id="responsavel" class="form-control email-input"
+                        placeholder="Nome do Responsável" value="{{ form_data.responsible_name }}" required>
+                    {% if errors.responsible_name %}<small class="input-error">{{ errors.responsible_name }}</small>{% endif %}
                 </div>
 
                 <div class="col-md-4">
-                    <input type="text" id="cep" class="form-control email-input" placeholder="CEP" required>
+                    <input type="text" name="cep" id="cep" class="form-control email-input"
+                        placeholder="CEP" value="{{ form_data.cep }}" required>
                 </div>
 
                 <div class="col-md-4">
-                    <input type="text" id="bairro" class="form-control email-input" placeholder="Bairro" required>
+                    <input type="text" name="district" id="bairro" class="form-control email-input"
+                        placeholder="Bairro" value="{{ form_data.district }}" required>
                 </div>
 
                 <div class="col-md-4">
-                    <input type="text" id="cidade" class="form-control email-input" placeholder="Cidade" required>
+                    <input type="text" name="city" id="cidade" class="form-control email-input"
+                        placeholder="Cidade" value="{{ form_data.city }}" required>
                 </div>
 
                 <div class="col-md-6">
-                    <input type="text" id="endereco" class="form-control email-input" placeholder="Endereço" required>
+                    <input type="text" name="street" id="endereco" class="form-control email-input"
+                        placeholder="Endereço" value="{{ form_data.street }}" required>
                 </div>
 
                 <div class="col-md-6">
-                    <input type="tel" id="telefone" class="form-control email-input" placeholder="Telefone" required>
+                    <input type="tel" name="phone" id="telefone" class="form-control email-input"
+                        placeholder="Telefone" value="{{ form_data.phone }}" required>
                 </div>
 
                 <div class="col-md-6">
-                    <input type="password" id="senha" class="form-control email-input" placeholder="Senha" required>
+                    <input type="password" name="password" id="senha" class="form-control email-input"
+                        placeholder="Senha" required>
+                    {% if errors.password %}<small class="input-error">{{ errors.password }}</small>{% endif %}
                 </div>
 
                 <div class="col-md-6">
-                    <input type="password" id="confirmar-senha" class="form-control email-input" placeholder="Confirmar Senha" required>
+                    <input type="password" name="password_confirm" id="confirmar-senha" class="form-control email-input"
+                        placeholder="Confirmar Senha" required>
+                    {% if errors.password_confirm %}<small class="input-error">{{ errors.password_confirm }}</small>{% endif %}
                 </div>
+
             </div>
 
             <button type="submit" class="btn btn-black w-100 mt-4">

@@ -6,22 +6,30 @@
     <div class="register-inner">
         <h4>Insira os dados para continuar</h4>
 
-        <form class="register-form" id="company-register-form">
-            <input 
-                type="email" 
-                id="company-email" 
-                class="form-control email-input" 
-                placeholder="E-mail corporativo" 
-                required
-            >
+        <form method="post" action="{% url 'register_company' %}" class="register-form" id="company-register-form">
+            {% csrf_token %}
 
-            <input 
-                type="text" 
-                id="company-cnpj" 
-                class="form-control email-input" 
-                placeholder="CNPJ" 
+            <input
+                type="email"
+                name="email"
+                id="company-email"
+                class="form-control email-input"
+                placeholder="E-mail corporativo"
+                value="{{ form_data.email }}"
                 required
             >
+            {% if errors.email %}<small class="input-error">{{ errors.email }}</small>{% endif %}
+
+            <input
+                type="text"
+                name="cnpj"
+                id="company-cnpj"
+                class="form-control email-input"
+                placeholder="CNPJ"
+                value="{{ form_data.cnpj }}"
+                required
+            >
+            {% if errors.cnpj %}<small class="input-error">{{ errors.cnpj }}</small>{% endif %}
 
             <button type="submit" class="btn btn-black w-100 mt-3">Continuar</button>
         </form>

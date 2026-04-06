@@ -8,7 +8,7 @@
 {% block content %}
 <div class="candidate-dashboard">
 
-    <h2 class="dashboard-title">Bem-vindo, Candidato!</h2>
+    <h2 class="dashboard-title">Bem-vindo, {{ request.user.first_name }}!</h2>
     <p class="dashboard-subtitle">Explore oportunidades e acompanhe seu desempenho.</p>
 
     <div class="dashboard-grid">
@@ -38,12 +38,12 @@
 
             <div class="feedback-item">
                 <p><strong>TechGlobal</strong></p>
-                <p class="feedback-text">“Boa comunicação e ótima postura na entrevista.”</p>
+                <p class="feedback-text">"Boa comunicação e ótima postura na entrevista."</p>
             </div>
 
             <div class="feedback-item">
                 <p><strong>Digital Labs</strong></p>
-                <p class="feedback-text">“Perfil promissor, recomendamos melhorar lógica.”</p>
+                <p class="feedback-text">"Perfil promissor, recomendamos melhorar lógica."</p>
             </div>
 
             <button class="btn btn-gray w-100 mt-3">Ver tudo</button>
@@ -54,10 +54,10 @@
             <h3 class="panel-title">Seu Score Scout</h3>
 
             <div class="score-circle">
-                <span>82</span>
+                <span>—</span>
             </div>
 
-            <p class="score-description">Seu desempenho geral é considerado <strong>muito bom</strong>! Continue assim.</p>
+            <p class="score-description">Seu score será calculado após receber os primeiros feedbacks.</p>
         </section>
 
     </div>
