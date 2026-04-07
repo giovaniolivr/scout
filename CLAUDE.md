@@ -22,6 +22,30 @@ Examples:
 - Use Django's ORM for all database access — no raw SQL unless absolutely necessary.
 - Keep business logic in models or service functions, not in views.
 
+## Visual Identity
+
+Every new page must follow the visual language already established in the project. The reference points are `style.css`, `candidate.css`, and `company.css`. New pages do not need to be identical, but must feel like they belong to the same product — same font (Poppins), same color tokens, same button styles (`btn-black`, `btn-gray`), same card pattern (dark background, subtle border, `border-radius: 12px`), same input style (`.email-input`).
+
+Do not introduce new color palettes, font families, or layout patterns without a clear reason. Variation is allowed within the established system, not outside it.
+
+## Responsiveness
+
+Every page must work correctly at all screen sizes — desktop, tablet, and mobile. Use Bootstrap's grid (`col-*`) and utility classes for layout. Never use fixed pixel widths on containers that hold content. Test mentally at 375px (mobile), 768px (tablet), and 1280px+ (desktop) before considering a layout done.
+
+Specific rules:
+- Dashboards and multi-column layouts must collapse gracefully to a single column on small screens.
+- Forms must not overflow or require horizontal scrolling on any screen width.
+- Navigation must remain usable on mobile.
+
+## Dark and Light Mode
+
+The project uses **explicit light-mode styles only**. Dark mode is handled by the Dark Reader browser extension, which transforms page colors dynamically. Do NOT use `@media (prefers-color-scheme: dark)` overrides — they conflict with Dark Reader and cause the toggle to have no effect.
+
+Rules:
+- All CSS must use explicit light-mode colors (e.g., `background-color: #f7f7f7; color: #111`). No CSS variables needed for theming.
+- Never leave a background-color unset on major layout elements (`html`, `body`, `main`, cards, inputs). Dark Reader needs explicit colors to detect and transform them.
+- The navbar and footer are intentionally always dark (`background-color: #000`) — this is correct and expected.
+
 ## Code Quality
 
 - No shortcuts that would need to be undone later — do it right the first time for platform code.

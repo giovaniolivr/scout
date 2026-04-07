@@ -1,39 +1,4 @@
 /* ===========================
-    VARIÁVEIS DE TEMA
-=========================== */
-
-:root {
-    --card-bg: #111;
-    --card-border: #2a2a2a;
-    --text-primary: #fff;
-    --text-secondary: #ddd;
-    --item-bg: #1b1b1b;
-
-    --status-open-text: #5bff80;
-    --status-open-border: #3b8f5a;
-
-    --status-paused-text: #ffd36b;
-    --status-paused-border: #8f7a3b;
-
-    --score-bg: #000;
-    --score-border: #444;
-}
-
-/* Tema claro */
-@media (prefers-color-scheme: light) {
-    :root {
-        --card-bg: #f2f2f2;
-        --card-border: #d9d9d9;
-        --text-primary: #000;
-        --text-secondary: #444;
-        --item-bg: #ffffff;
-
-        --score-bg: #f1f1f1;
-        --score-border: #ccc;
-    }
-}
-
-/* ===========================
    COMPANY DASHBOARD
 =========================== */
 
@@ -48,14 +13,13 @@
     font-size: 1.8rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
+    color: #111;
 }
 
 .dashboard-subtitle {
-    color: var(--text-secondary);
+    color: #444;
     margin-bottom: 2rem;
 }
-
-/* ===== GRID ===== */
 
 .dashboard-grid {
     display: grid;
@@ -63,14 +27,18 @@
     gap: 2rem;
 }
 
-/* ===== CARDS ===== */
+@media (max-width: 767px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
 .dashboard-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background-color: #f2f2f2;
+    border: 1px solid #d9d9d9;
     padding: 1.5rem;
     border-radius: 12px;
-    color: var(--text-primary);
+    color: #111;
 }
 
 .panel-title {
@@ -79,17 +47,13 @@
     font-weight: 500;
 }
 
-/* =============
-   JOB LISTINGS
-================*/
-
 .job-item {
-    background: var(--item-bg);
+    background: #ffffff;
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 0.8rem;
-    border: 1px solid var(--card-border);
-    color: var(--text-primary);
+    border: 1px solid #d9d9d9;
+    color: #111;
 }
 
 .job-item h4 {
@@ -97,7 +61,6 @@
     margin-bottom: 0.3rem;
 }
 
-/* Job Status */
 .job-status {
     padding: 0.2rem 0.6rem;
     border-radius: 6px;
@@ -106,40 +69,34 @@
 
 .job-status.open {
     background-color: transparent;
-    border: 1px solid var(--status-open-border);
-    color: var(--status-open-text);
+    border: 1px solid #4caf72;
+    color: #1a7a3a;
 }
 
 .job-status.paused {
     background-color: transparent;
-    border: 1px solid var(--status-paused-border);
-    color: var(--status-paused-text);
+    border: 1px solid #c49a00;
+    color: #8a6500;
 }
 
-/* ============
-   TALENT LIST
-=============== */
-
 .talent-item {
-    background: var(--item-bg);
-    border: 1px solid var(--card-border);
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 0.8rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--text-primary);
+    color: #111;
 }
 
 .talent-skill {
-    color: var(--text-secondary);
+    color: #444;
 }
 
-/* SCORE BADGE */
-
 .score-badge {
-    background: var(--score-bg);
+    background: #e8e8e8;
     border-radius: 50%;
     width: 42px;
     height: 42px;
@@ -147,7 +104,7 @@
     justify-content: center;
     align-items: center;
     font-weight: 600;
-    border: 1px solid var(--score-border);
+    border: 1px solid #bbb;
     font-size: 1rem;
-    color: var(--text-primary);
+    color: #111;
 }

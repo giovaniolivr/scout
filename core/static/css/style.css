@@ -1,11 +1,17 @@
 /* ===========================
    BASE E LAYOUT GERAL
 =========================== */
-html, body {
-    height: 100%;
+
+html {
+    min-height: 100%;
+    background-color: #f7f7f7;
+}
+
+body {
+    min-height: 100%;
     margin: 0;
-    background-color: #1c1c1c;
-    color: #f2f2f2;
+    background-color: #f7f7f7;
+    color: #111;
     display: flex;
     flex-direction: column;
     font-family: 'Poppins', sans-serif !important;
@@ -24,12 +30,12 @@ main {
     flex: 1;
     padding: 2rem;
     width: 100%;
-    background-color: #fff; /* fundo claro para páginas como a home */
-    color: #000; /* texto preto */
+    background-color: #f7f7f7;
+    color: #111;
 }
 
 /* ===========================
-   NAVBAR
+   NAVBAR — always dark
 =========================== */
 .navbar {
     background-color: #000 !important;
@@ -43,10 +49,9 @@ main {
     padding: 0.75rem 4vw;
 }
 
-/* Links da navbar */
 .nav-link,
 .navbar-brand {
-    color: inherit !important;
+    color: #fff !important;
     transition: color 0.3s ease;
 }
 
@@ -56,7 +61,6 @@ main {
     text-decoration: none;
 }
 
-/* Botão "Cadastre-se" */
 .navbar .btn-register {
     background-color: #2a2a2a !important;
     color: #fff !important;
@@ -72,7 +76,7 @@ main {
 }
 
 /* ===========================
-   FOOTER NOVO ESTILO
+   FOOTER — always dark
 =========================== */
 .footer {
     background-color: #000;
@@ -123,22 +127,12 @@ main {
     color: #fff;
 }
 
-/* Social icons placeholders */
 .footer-social {
     display: flex;
     gap: 1rem;
     margin-top: 0.5rem;
 }
 
-.social-icon.placeholder-icon {
-    width: 32px;
-    height: 32px;
-    background-color: #333;
-    border-radius: 6px;
-    display: inline-block;
-}
-
-/* Divider */
 .footer-divider {
     border: none;
     border-top: 1px solid #222;
@@ -147,13 +141,11 @@ main {
     max-width: 1400px;
 }
 
-/* Bottom */
 .footer-bottom {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 4vw;
-
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -181,6 +173,16 @@ main {
 }
 
 .footer-bottom-links a:hover {
+    color: #fff;
+}
+
+.social-link i {
+    font-size: 1.8rem;
+    color: #ccc;
+    transition: color .2s ease;
+}
+
+.social-link i:hover {
     color: #fff;
 }
 
@@ -213,10 +215,18 @@ h1, h2, h3, h4, h5 {
     margin-bottom: 1.5rem;
 }
 
-/* Campo de e-mail */
+.register-inner form {
+    margin-top: 1.5rem;
+}
+
+.register-inner.register-large {
+    max-width: 720px;
+}
+
+/* Campo de formulário */
 .email-input {
-    background-color: #2a2a2a;
-    color: inherit;
+    background-color: #e0e0e0;
+    color: #111;
     border: none;
     padding: 0.9rem 1rem;
     border-radius: 8px;
@@ -226,12 +236,12 @@ h1, h2, h3, h4, h5 {
 }
 
 .email-input:focus {
-    background-color: #333;
+    background-color: #d4d4d4;
     outline: none;
     box-shadow: none;
 }
 
-/* Botão Continuar */
+/* Botão principal */
 .btn-black {
     background-color: #000 !important;
     color: #fff !important;
@@ -244,7 +254,25 @@ h1, h2, h3, h4, h5 {
 }
 
 .btn-black:hover {
-    background-color: #111;
+    background-color: #222 !important;
+}
+
+/* Botão cinza */
+.btn-gray {
+    background-color: #d1d1d1 !important;
+    color: #111 !important;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-gray:hover {
+    background-color: #bfbfbf !important;
+}
+
+.nav-btn {
+    min-width: 110px;
 }
 
 /* Divisor */
@@ -252,7 +280,7 @@ h1, h2, h3, h4, h5 {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #888;
+    color: #666;
     margin-bottom: 1.8rem;
     font-size: 0.9rem;
 }
@@ -261,15 +289,11 @@ h1, h2, h3, h4, h5 {
 .divider::after {
     content: "";
     flex: 1;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid #ccc;
 }
 
-.divider:not(:empty)::before {
-    margin-right: 0.75em;
-}
-.divider:not(:empty)::after {
-    margin-left: 0.75em;
-}
+.divider:not(:empty)::before { margin-right: 0.75em; }
+.divider:not(:empty)::after  { margin-left:  0.75em; }
 
 /* Botões sociais */
 .btn-social {
@@ -307,7 +331,7 @@ h1, h2, h3, h4, h5 {
 /* Texto dos termos */
 .terms {
     font-size: 0.85rem;
-    color: #aaa;
+    color: #555;
     line-height: 1.5;
     max-width: 320px;
     margin: 1.5rem auto 0;
@@ -342,9 +366,8 @@ h1, h2, h3, h4, h5 {
 }
 
 .code-box {
-    background-color: #2a2a2a;
-    color: #fff !important;
-    color: inherit;
+    background-color: #e0e0e0;
+    color: #111;
     border: none;
     border-radius: 8px;
     text-align: center;
@@ -355,126 +378,23 @@ h1, h2, h3, h4, h5 {
 }
 
 .code-box:focus {
-    background-color: #3a3a3a;
+    background-color: #d4d4d4;
     outline: none;
-}
-
-/* Botões genéricos cinza */
-.btn-gray {
-    background-color: #2a2a2a !important;
-    color: #fff !important;
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    transition: background-color 0.3s ease;
-}
-
-.btn-gray:hover {
-    background-color: #3a3a3a !important;
-}
-
-.nav-btn {
-    min-width: 110px;
-}
-
-/* Tela de cadastro completo */
-.register-inner form {
-    margin-top: 1.5rem;
-}
-
-.register-inner h4 {
-    margin-bottom: 1.5rem;
-}
-
-/* Aumenta o tamanho geral do formulário */
-.register-inner.register-large {
-    max-width: 720px; /* Dobro do tamanho anterior */
-}
-
-/* Corrige e estiliza a caixa de sugestões */
-.suggestions-box {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-    background-color: #2a2a2a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    display: none;
-    z-index: 100;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.suggestion-item {
-    padding: 0.6rem 1rem;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.suggestion-item:hover {
-    background-color: #3a3a3a;
 }
 
 /* Erro nos campos */
 .input-error {
     font-size: 0.85rem;
-    color: #ff6b6b;
+    color: #d94f4f;
 }
 
 /* ===========================
-   BANDEIRA 🇧🇷 NO CAMPO DE TELEFONE
+   BANDEIRA NO CAMPO DE TELEFONE
 =========================== */
 input[placeholder="Telefone"] {
     background-image: url('https://flagcdn.com/w20/br.png');
     background-repeat: no-repeat;
     background-position: 10px center;
     background-size: 20px auto;
-    padding-left: 35px; /* espaço para a bandeira e o +55 */
-}
-
-.social-link i {
-    font-size: 1.8rem;
-    color: #ccc;
-    transition: color .2s ease;
-}
-
-.social-link i:hover {
-    color: #fff;
-}
-
-
-/* ===========================
-   MODO CLARO AUTOMÁTICO
-=========================== */
-@media (prefers-color-scheme: light) {
-    body {
-        background-color: #f7f7f7;
-        color: #000;
-    }
-
-    .btn-register {
-        background-color: #e0e0e0 !important;
-        color: #000 !important;
-    }
-
-    .email-input,
-    .code-box {
-        background-color: #e0e0e0 !important;
-        color: #000 !important;
-    }
-
-    .btn-gray {
-        background-color: #d1d1d1 !important;
-        color: #000 !important;
-    }
-
-    .btn-gray:hover {
-        background-color: #bfbfbf !important;
-    }
-
-    .terms {
-        color: #555;
-    }
+    padding-left: 35px;
 }

@@ -23,6 +23,9 @@ def _redirect_authenticated(request):
 
 
 def home(request):
+    redir = _redirect_authenticated(request)
+    if redir:
+        return redir
     return render(request, 'home.html')
 
 
