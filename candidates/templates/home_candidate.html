@@ -4,23 +4,30 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=7">
 <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/home_candidate.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
 <div class="candidate-dashboard">
 
     <h2 class="dashboard-title">Bem-vindo, {{ request.user.first_name }}!</h2>
-    <p class="dashboard-subtitle">Acompanhe suas candidaturas e explore novas oportunidades.</p>
+    <p class="dashboard-subtitle">Acompanhe suas candidaturas e explore oportunidades recomendadas.</p>
 
-    <div class="home-grid">
+    <!-- Row 1: Recent applications + Score -->
+    <div class="home-top-grid">
 
-        <!-- Applications panel -->
-        <section class="applications-panel">
-            <h3 class="panel-title">Minhas Candidaturas</h3>
+        <!-- Recent applications -->
+        <section class="dashboard-card applications-panel">
+            <div class="panel-header">
+                <h3 class="panel-title">Candidaturas Recentes</h3>
+                {% if total_applications > 0 %}
+                    <a href="{% url 'all_applications' %}" class="panel-link">Ver todas ({{ total_applications }})</a>
+                {% endif %}
+            </div>
 
-            {% if applications %}
-                <div class="jobs-list">
-                    {% for app in applications %}
+            {% if recent_applications %}
+                <div class="apps-list">
+                    {% for app in recent_applications %}
                     <a href="{% url 'application_detail' app.id %}" class="application-card-link">
                         <div class="application-card">
                             <div class="application-card-header">
@@ -45,22 +52,85 @@
                     </a>
                     {% endfor %}
                 </div>
-                <a href="{% url 'search_jobs' %}" class="btn btn-black w-100 mt-3">Procurar mais vagas</a>
             {% else %}
-                <div class="empty-state">
+                <div class="empty-state-inline">
                     <p>Você ainda não se candidatou a nenhuma vaga.</p>
-                    <a href="{% url 'search_jobs' %}" class="btn btn-black mt-3">Procurar vagas</a>
+                    <a href="{% url 'search_jobs' %}" class="btn btn-black mt-2">Procurar vagas</a>
                 </div>
             {% endif %}
         </section>
 
-        <!-- Score panel -->
+        <!-- Score -->
         <section class="dashboard-card score-card">
-            <h3 class="panel-title">Seu Scout Score</h3>
+            <h3 class="panel-title">Scout Score</h3>
             <div class="score-circle">
                 <span>—</span>
             </div>
-            <p class="score-description">Seu score será calculado após receber os primeiros feedbacks das empresas.</p>
+            <p class="score-description">Calculado após os primeiros feedbacks das empresas.</p>
+        </section>
+
+    </div>
+
+    <!-- Row 2: Recommended jobs -->
+    <section class="recommended-section">
+        <div class="panel-header">
+            <h3 class="panel-title">Vagas em Destaque</h3>
+            <a href="{% url 'search_jobs' %}" class="panel-link">Ver todas vagas</a>
+        </div>
+
+        {% if recommended_jobs %}
+            <div class="recommended-grid">
+                {% for job in recommended_jobs %}
+                <div class="recommended-card">
+                    <div class="recommended-card-top">
+                        <span class="job-type-badge">{{ job.get_job_type_display }}</span>
+                        {% if job.external_url %}
+                            <span class="external-badge-sm">
+                                {% if 'linkedin' in job.external_url %}<i class="fa-brands fa-linkedin"></i>
+                                {% elif 'indeed' in job.external_url %}Indeed
+                                {% elif 'glassdoor' in job.external_url %}Glassdoor
+                                {% else %}Externo{% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <h4 class="recommended-card-title">{{ job.title }}</h4>
+                    <p class="recommended-card-company">{{ job.company.company_name }}</p>
+                    <p class="recommended-card-location"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</p>
+                    <div class="recommended-card-footer">
+                        {% if job.external_url %}
+                            <form method="post" action="{% url 'apply_external' job.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-black w-100">Candidatar-se</button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'job_detail' job.id %}" class="btn btn-black w-100">Ver vaga</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state-inline">Nenhuma nova vaga disponível no momento.</p>
+        {% endif %}
+    </section>
+
+    <!-- Row 3: Insight panels (algorithm-ready placeholders) -->
+    <div class="insights-grid">
+
+        <section class="dashboard-card insight-card">
+            <h3 class="panel-title">Onde você está indo bem</h3>
+            <div class="insight-placeholder">
+                <i class="fa-solid fa-chart-line insight-icon"></i>
+                <p>Disponível após receber feedbacks das empresas e completar seu perfil.</p>
+            </div>
+        </section>
+
+        <section class="dashboard-card insight-card">
+            <h3 class="panel-title">O que você pode melhorar</h3>
+            <div class="insight-placeholder">
+                <i class="fa-solid fa-bullseye insight-icon"></i>
+                <p>Disponível após receber feedbacks das empresas e completar seu perfil.</p>
+            </div>
         </section>
 
     </div>

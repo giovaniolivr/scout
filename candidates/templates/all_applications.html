@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/home_candidate.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="candidate-dashboard">
+
+    <h2 class="dashboard-title">Minhas Candidaturas</h2>
+    <p class="dashboard-subtitle">Todas as vagas às quais você se candidatou.</p>
+
+    {% if applications %}
+        <div class="apps-list">
+            {% for app in applications %}
+            <a href="{% url 'application_detail' app.id %}" class="application-card-link">
+                <div class="application-card">
+                    <div class="application-card-header">
+                        <div>
+                            <h4 class="application-card-title">{{ app.job.title }}</h4>
+                            <p class="application-card-company">{{ app.job.company.company_name }}</p>
+                        </div>
+                        <div class="application-card-badges">
+                            <span class="job-status-badge {{ app.job.status }}">{{ app.job.get_status_display }}</span>
+                            <span class="application-status-badge {{ app.status }}">{{ app.get_status_display }}</span>
+                        </div>
+                    </div>
+                    <p class="application-card-meta">
+                        <i class="fa-solid fa-location-dot"></i> {{ app.job.location }}
+                        &nbsp;·&nbsp;
+                        <i class="fa-regular fa-calendar"></i> {{ app.applied_at|date:"d/m/Y" }}
+                    </p>
+                    {% if app.job.status != 'open' %}
+                        <p class="rate-prompt">Vaga encerrada — avalie sua experiência →</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>Você ainda não se candidatou a nenhuma vaga.</p>
+            <a href="{% url 'search_jobs' %}" class="btn btn-black mt-3">Procurar vagas</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

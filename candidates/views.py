@@ -20,6 +20,49 @@ def home_candidate(request):
         return redir
 
     profile = request.user.candidate_profile
+
+    applied_job_ids = set(
+        JobApplication.objects.filter(candidate=profile).values_list('job_id', flat=True)
+    )
+
+    # ----------------------------------------------------------------
+    # ALGORITHM HOOK — replace this queryset with the ranking algorithm
+    # when it's ready. The home page always renders the first 3 results.
+    # ----------------------------------------------------------------
+    recent_applications = (
+        JobApplication.objects
+        .filter(candidate=profile)
+        .select_related('job', 'job__company')
+        .order_by('-applied_at')[:3]
+    )
+    total_applications = JobApplication.objects.filter(candidate=profile).count()
+
+    # ----------------------------------------------------------------
+    # RECOMMENDATION HOOK — replace with soft-skill / preference
+    # matching algorithm when profile data is available.
+    # ----------------------------------------------------------------
+    recommended_jobs = (
+        Job.objects
+        .filter(status=Job.STATUS_OPEN)
+        .exclude(id__in=applied_job_ids)
+        .select_related('company')
+        .order_by('-created_at')[:3]
+    )
+
+    return render(request, 'home_candidate.html', {
+        'recent_applications': recent_applications,
+        'total_applications': total_applications,
+        'recommended_jobs': recommended_jobs,
+    })
+
+
+@login_required
+def all_applications(request):
+    redir = _require_candidate(request)
+    if redir:
+        return redir
+
+    profile = request.user.candidate_profile
     applications = (
         JobApplication.objects
         .filter(candidate=profile)
@@ -27,7 +70,7 @@ def home_candidate(request):
         .order_by('-applied_at')
     )
 
-    return render(request, 'home_candidate.html', {'applications': applications})
+    return render(request, 'all_applications.html', {'applications': applications})
 
 
 @login_required
@@ -104,7 +147,7 @@ def apply_job(request, job_id):
         )
 
         messages.success(request, f'Candidatura enviada para "{job.title}"!')
-        return redirect('home_candidate')
+        return redirect('search_jobs')
 
     return render(request, 'apply_job.html', {'job': job})
 
@@ -123,7 +166,7 @@ def apply_external(request, job_id):
     JobApplication.objects.get_or_create(candidate=profile, job=job)
 
     messages.success(request, f'Candidatura enviada para "{job.title}"!')
-    return redirect('home_candidate')
+    return redirect('search_jobs')
 
 
 @login_required
