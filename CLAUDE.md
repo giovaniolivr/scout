@@ -46,6 +46,24 @@ Rules:
 - Never leave a background-color unset on major layout elements (`html`, `body`, `main`, cards, inputs). Dark Reader needs explicit colors to detect and transform them.
 - The navbar and footer are intentionally always dark (`background-color: #000`) — this is correct and expected.
 
+## Scout Score System
+
+There are two distinct scores. They must never be confused or merged.
+
+### External Score (visible to the candidate)
+- Shown on the candidate home page as the "Scout Score"
+- Range: 0–100, not cumulative
+- Represents a snapshot of the candidate's current standing — what they are doing well and where they can improve
+- Calculated from quality signals: feedback received from companies, application outcomes, profile completeness, engagement
+- A candidate who does everything right for a short period can score higher than one who uses the app passively for a long time
+
+### Internal Score (hidden — system use only)
+- Never displayed to candidates or companies
+- Cumulative and absolute — grows over time
+- Rewards sustained correct behavior: consistent applications, receiving positive feedback, completing rating cycles, keeping profile up to date
+- Used internally for ranking, recommendations, and detecting low-quality or inactive accounts
+- Time in the platform matters, but quality matters more: a short-term high-quality user will outrank a long-term low-quality user
+
 ## Code Quality
 
 - No shortcuts that would need to be undone later — do it right the first time for platform code.

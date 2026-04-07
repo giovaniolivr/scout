@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="job-detail-container">
+
+    <a href="{% url 'home_candidate' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para home
+    </a>
+
+    <div class="job-detail-card">
+
+        <div class="job-detail-header">
+            <div>
+                <h2 class="job-detail-title">{{ application.job.title }}</h2>
+                <p class="job-detail-company">{{ application.job.company.company_name }}</p>
+            </div>
+            <div class="application-card-badges">
+                <span class="job-status-badge {{ application.job.status }}">{{ application.job.get_status_display }}</span>
+                <span class="application-status-badge {{ application.status }}">{{ application.get_status_display }}</span>
+            </div>
+        </div>
+
+        <p class="job-detail-location">
+            <i class="fa-solid fa-location-dot"></i> {{ application.job.location }}
+            &nbsp;·&nbsp;
+            <i class="fa-regular fa-calendar"></i> Candidatura enviada em {{ application.applied_at|date:"d/m/Y" }}
+        </p>
+
+        <hr class="detail-divider">
+
+        <h4 class="detail-section-title">Descrição da vaga</h4>
+        <p class="job-detail-description">{{ application.job.description }}</p>
+
+        {% if application.message %}
+            <hr class="detail-divider">
+            <h4 class="detail-section-title">Sua mensagem</h4>
+            <p class="job-detail-description">{{ application.message }}</p>
+        {% endif %}
+
+        <!-- Rating — only when job is closed -->
+        {% if application.job.status != 'open' %}
+            <hr class="detail-divider">
+            <h4 class="detail-section-title">Como foi sua experiência?</h4>
+            <p class="dashboard-subtitle">A vaga foi encerrada. Avalie o processo e ela será removida da sua lista.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="rate">
+
+                <div class="star-rating-group">
+                    {% for i in "54321" %}
+                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                    <label for="star{{ i }}"><i class="fa-solid fa-star"></i></label>
+                    {% endfor %}
+                </div>
+                {% if rating_error %}
+                    <p class="input-error">{{ rating_error }}</p>
+                {% endif %}
+
+                <textarea
+                    name="comment"
+                    class="email-input apply-textarea mt-3"
+                    rows="3"
+                    placeholder="A empresa entrou em contato? Como foi o processo? (opcional)"
+                ></textarea>
+
+                <button type="submit" class="btn btn-black w-100 mt-2">Enviar avaliação</button>
+            </form>
+        {% endif %}
+
+        <!-- Hide button -->
+        <hr class="detail-divider">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="hide">
+            <button type="submit" class="btn btn-gray w-100">
+                <i class="fa-solid fa-eye-slash"></i> Remover da minha lista
+            </button>
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}

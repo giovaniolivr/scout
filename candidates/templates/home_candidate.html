@@ -2,64 +2,68 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="candidate-dashboard">
 
     <h2 class="dashboard-title">Bem-vindo, {{ request.user.first_name }}!</h2>
-    <p class="dashboard-subtitle">Explore oportunidades e acompanhe seu desempenho.</p>
+    <p class="dashboard-subtitle">Acompanhe suas candidaturas e explore novas oportunidades.</p>
 
-    <div class="dashboard-grid">
+    <div class="home-grid">
 
-        <!-- Painel: Vagas recomendadas -->
-        <section class="dashboard-card">
-            <h3 class="panel-title">Vagas Recomendadas</h3>
+        <!-- Applications panel -->
+        <section class="applications-panel">
+            <h3 class="panel-title">Minhas Candidaturas</h3>
 
-            <div class="job-item">
-                <h4>Desenvolvedor Front-End Jr</h4>
-                <p>Empresa: TechGlobal</p>
-                <button class="btn btn-gray w-100 mt-2">Ver detalhes</button>
-            </div>
-
-            <div class="job-item">
-                <h4>QA Tester Jr</h4>
-                <p>Empresa: QASolutions</p>
-                <button class="btn btn-gray w-100 mt-2">Ver detalhes</button>
-            </div>
-
-            <button class="btn btn-black w-100 mt-3">Ver todas vagas</button>
+            {% if applications %}
+                <div class="jobs-list">
+                    {% for app in applications %}
+                    <a href="{% url 'application_detail' app.id %}" class="application-card-link">
+                        <div class="application-card">
+                            <div class="application-card-header">
+                                <div>
+                                    <h4 class="application-card-title">{{ app.job.title }}</h4>
+                                    <p class="application-card-company">{{ app.job.company.company_name }}</p>
+                                </div>
+                                <div class="application-card-badges">
+                                    <span class="job-status-badge {{ app.job.status }}">{{ app.job.get_status_display }}</span>
+                                    <span class="application-status-badge {{ app.status }}">{{ app.get_status_display }}</span>
+                                </div>
+                            </div>
+                            <p class="application-card-meta">
+                                <i class="fa-solid fa-location-dot"></i> {{ app.job.location }}
+                                &nbsp;·&nbsp;
+                                <i class="fa-regular fa-calendar"></i> {{ app.applied_at|date:"d/m/Y" }}
+                            </p>
+                            {% if app.job.status != 'open' %}
+                                <p class="rate-prompt">Vaga encerrada — avalie sua experiência →</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'search_jobs' %}" class="btn btn-black w-100 mt-3">Procurar mais vagas</a>
+            {% else %}
+                <div class="empty-state">
+                    <p>Você ainda não se candidatou a nenhuma vaga.</p>
+                    <a href="{% url 'search_jobs' %}" class="btn btn-black mt-3">Procurar vagas</a>
+                </div>
+            {% endif %}
         </section>
 
-        <!-- Painel: Feedbacks recentes -->
-        <section class="dashboard-card">
-            <h3 class="panel-title">Feedbacks Recentes</h3>
-
-            <div class="feedback-item">
-                <p><strong>TechGlobal</strong></p>
-                <p class="feedback-text">"Boa comunicação e ótima postura na entrevista."</p>
-            </div>
-
-            <div class="feedback-item">
-                <p><strong>Digital Labs</strong></p>
-                <p class="feedback-text">"Perfil promissor, recomendamos melhorar lógica."</p>
-            </div>
-
-            <button class="btn btn-gray w-100 mt-3">Ver tudo</button>
-        </section>
-
-        <!-- Painel: Score do candidato -->
+        <!-- Score panel -->
         <section class="dashboard-card score-card">
-            <h3 class="panel-title">Seu Score Scout</h3>
-
+            <h3 class="panel-title">Seu Scout Score</h3>
             <div class="score-circle">
                 <span>—</span>
             </div>
-
-            <p class="score-description">Seu score será calculado após receber os primeiros feedbacks.</p>
+            <p class="score-description">Seu score será calculado após receber os primeiros feedbacks das empresas.</p>
         </section>
 
     </div>
+
 </div>
 {% endblock %}

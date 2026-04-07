@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="job-detail-container">
+
+    <a href="{% url 'job_detail' job.id %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para a vaga
+    </a>
+
+    <div class="job-detail-card">
+
+        <h2 class="job-detail-title">Candidatar-se</h2>
+        <p class="job-detail-company">{{ job.title }} — {{ job.company.company_name }}</p>
+
+        <hr class="detail-divider">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="apply-field-group">
+                <label class="apply-label">Nome completo</label>
+                <input type="text" class="email-input" value="{{ request.user.get_full_name }}" disabled>
+            </div>
+
+            <div class="apply-field-group">
+                <label class="apply-label">E-mail</label>
+                <input type="text" class="email-input" value="{{ request.user.email }}" disabled>
+            </div>
+
+            <div class="apply-field-group">
+                <label class="apply-label">Currículo</label>
+                <button type="button" class="btn btn-gray w-100" id="cv-btn" onclick="mockUploadCV()">
+                    <i class="fa-solid fa-file-arrow-up"></i> Fazer upload do currículo
+                </button>
+                <p class="apply-hint" id="cv-status"></p>
+            </div>
+
+            <div class="apply-field-group">
+                <label class="apply-label" for="message">Mensagem para a empresa (opcional)</label>
+                <textarea
+                    id="message"
+                    name="message"
+                    class="email-input apply-textarea"
+                    rows="4"
+                    placeholder="Conte um pouco sobre você ou por que tem interesse nesta vaga..."
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-black w-100 mt-2">Enviar candidatura</button>
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function mockUploadCV() {
+    const btn = document.getElementById('cv-btn');
+    const status = document.getElementById('cv-status');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando...';
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Currículo carregado';
+        btn.style.color = '#1a7a3a';
+        status.textContent = 'curriculo.pdf identificado com sucesso.';
+        status.style.color = '#1a7a3a';
+    }, 1200);
+}
+</script>
+{% endblock %}

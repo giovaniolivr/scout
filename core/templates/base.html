@@ -25,7 +25,9 @@
 
                     {% if user_is_candidate %}
                         <div class="d-flex align-items-center">
-                            <a href="#" class="nav-link text-white me-3">Procurar vagas</a>
+                            {% if request.resolver_match.url_name != 'search_jobs' %}
+                            <a href="{% url 'search_jobs' %}" class="nav-link text-white me-3">Procurar vagas</a>
+                            {% endif %}
                             <div class="dropdown">
                                 <button class="btn btn-register dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
                                     <span class="me-2">{{ request.user.first_name }}</span>

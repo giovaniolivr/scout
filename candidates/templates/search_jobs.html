@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/search_jobs.css' %}?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="search-jobs-container">
+
+    <h2 class="dashboard-title">Procurar Vagas</h2>
+    <p class="dashboard-subtitle">Encontre oportunidades que combinam com o seu perfil.</p>
+
+    <!-- Filters -->
+    <form method="get" action="" class="search-form">
+        <div class="search-row">
+            <input
+                type="text"
+                name="q"
+                class="email-input search-input"
+                placeholder="Cargo ou palavra-chave"
+                value="{{ query }}"
+            >
+            <input
+                type="text"
+                name="location"
+                class="email-input search-input"
+                placeholder="Cidade ou estado"
+                value="{{ location }}"
+            >
+            <select name="type" class="email-input search-select">
+                <option value="">Tipo de vaga</option>
+                {% for value, label in type_choices %}
+                    <option value="{{ value }}" {% if job_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-black search-btn">Buscar</button>
+        </div>
+    </form>
+
+    <!-- Results -->
+    {% if jobs %}
+        <p class="results-count">{{ jobs.count }} vaga{{ jobs.count|pluralize }} encontrada{{ jobs.count|pluralize }}</p>
+        <div class="jobs-list">
+            {% for job in jobs %}
+            <div class="job-card">
+                <div class="job-card-header">
+                    <div>
+                        <h3 class="job-card-title">{{ job.title }}</h3>
+                        <p class="job-card-company">{{ job.company.company_name }}</p>
+                    </div>
+                    <div class="job-card-header-right">
+                        <span class="job-type-badge">{{ job.get_job_type_display }}</span>
+                        {% if job.external_url %}
+                            <span class="external-badge">
+                                {% if 'linkedin' in job.external_url %}
+                                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                                {% elif 'indeed' in job.external_url %}
+                                    Indeed
+                                {% elif 'glassdoor' in job.external_url %}
+                                    Glassdoor
+                                {% else %}
+                                    Externo
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <p class="job-card-location"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</p>
+                <p class="job-card-description">{{ job.description|truncatechars:160 }}</p>
+                <div class="job-card-footer">
+                    <span class="job-card-date">Publicada em {{ job.created_at|date:"d/m/Y" }}</span>
+                    {% if job.external_url %}
+                        <form method="post" action="{% url 'apply_external' job.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-black job-apply-btn">Candidatar-se</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'job_detail' job.id %}" class="btn btn-black job-apply-btn">Ver vaga</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-results">
+            <p>Nenhuma vaga encontrada.</p>
+            {% if query or location or job_type %}
+                <a href="{% url 'search_jobs' %}" class="btn btn-gray mt-2">Limpar filtros</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

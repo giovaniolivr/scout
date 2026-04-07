@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="job-detail-container">
+
+    <a href="{% url 'search_jobs' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para vagas
+    </a>
+
+    <div class="job-detail-card">
+
+        <div class="job-detail-header">
+            <div>
+                <h2 class="job-detail-title">{{ job.title }}</h2>
+                <p class="job-detail-company">{{ job.company.company_name }}</p>
+            </div>
+            <span class="job-type-badge">{{ job.get_job_type_display }}</span>
+        </div>
+
+        <p class="job-detail-location">
+            <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+            &nbsp;·&nbsp;
+            <i class="fa-regular fa-calendar"></i> Publicada em {{ job.created_at|date:"d/m/Y" }}
+        </p>
+
+        <hr class="detail-divider">
+
+        <h4 class="detail-section-title">Descrição da vaga</h4>
+        <p class="job-detail-description">{{ job.description }}</p>
+
+        <div class="job-detail-actions">
+            {% if application %}
+                <div class="already-applied">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Você já se candidatou a esta vaga em {{ application.applied_at|date:"d/m/Y" }}.
+                    <a href="{% url 'application_detail' application.id %}">Ver candidatura</a>
+                </div>
+            {% elif job.status == 'open' %}
+                {% if job.external_url %}
+                    <form method="post" action="{% url 'apply_external' job.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-black apply-btn">Candidatar-se</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'apply_job' job.id %}" class="btn btn-black apply-btn">Candidatar-se</a>
+                {% endif %}
+            {% else %}
+                <span class="job-closed-label">Esta vaga não está aceitando candidaturas no momento.</span>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
