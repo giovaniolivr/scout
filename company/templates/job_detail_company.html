@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+{% endblock %}
+
+{% block content %}
+<div class="company-dashboard">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-nav">
+        <a href="{% url 'job_list_company' %}">Minhas vagas</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>{{ job.title }}</span>
+    </nav>
+
+    <div class="job-detail-grid">
+
+        <!-- Job info + status -->
+        <section class="dashboard-card job-info-card">
+            <div class="job-info-header">
+                <div>
+                    <h2 class="job-info-title">{{ job.title }}</h2>
+                    <p class="job-info-meta">
+                        <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+                        &nbsp;·&nbsp;
+                        {{ job.get_job_type_display }}
+                        &nbsp;·&nbsp;
+                        Publicada em {{ job.created_at|date:"d/m/Y" }}
+                    </p>
+                </div>
+                <span class="job-status {{ job.status }} job-status-lg">{{ job.get_status_display }}</span>
+            </div>
+
+            <div class="job-description-body">
+                {{ job.description|linebreaks }}
+            </div>
+
+            {% if job.has_requirements %}
+            <div class="skills-section">
+                {% if job.get_required_hard_skills_list %}
+                <div class="skills-group">
+                    <p class="skills-group-label">Habilidades técnicas requeridas</p>
+                    <div class="skills-tags">
+                        {% for skill in job.get_required_hard_skills_list %}
+                        <span class="skill-tag skill-tag--hard">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% if job.get_required_soft_skills_list %}
+                <div class="skills-group">
+                    <p class="skills-group-label">Habilidades comportamentais requeridas</p>
+                    <div class="skills-tags">
+                        {% for skill in job.get_required_soft_skills_list %}
+                        <span class="skill-tag skill-tag--soft">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if job.external_url %}
+            <p class="job-external-note">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                Candidaturas externas via: <a href="{{ job.external_url }}" target="_blank" rel="noopener">{{ job.external_url }}</a>
+            </p>
+            {% endif %}
+
+            <!-- Status control -->
+            <div class="status-control">
+                <h4 class="status-control-label">Alterar status da vaga</h4>
+                <form method="post" action="{% url 'job_update_status' job.id %}" class="status-form">
+                    {% csrf_token %}
+                    <div class="status-buttons">
+                        {% for value, label in status_choices %}
+                        <button
+                            type="submit"
+                            name="status"
+                            value="{{ value }}"
+                            class="btn status-btn {% if job.status == value %}status-btn--active status-btn--{{ value }}{% else %}btn-gray{% endif %}"
+                            {% if job.status == value %}disabled{% endif %}
+                        >
+                            {{ label }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            <!-- Delete -->
+            <div class="delete-zone">
+                <button type="button" class="btn btn-danger-outline" data-bs-toggle="modal" data-bs-target="#deleteJobModal">
+                    <i class="fa-solid fa-trash me-1"></i> Remover vaga
+                </button>
+            </div>
+        </section>
+
+        <!-- Delete confirmation modal -->
+        <div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color: #1c1c1c; color: #fff; border: 1px solid #333;">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Remover vaga?</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja remover <strong>{{ job.title }}</strong>?</p>
+                        <p style="font-size:0.9rem; color:#aaa;">
+                            Esta ação é permanente. Todas as candidaturas associadas também serão removidas.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0 d-flex flex-column align-items-stretch gap-2">
+                        <form method="post" action="{% url 'job_delete' job.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-black w-100" style="background-color: #c0392b !important;">
+                                Sim, remover vaga
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-gray w-100" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applicants -->
+        <section class="dashboard-card applicants-card">
+            <h3 class="panel-title">
+                Candidatos
+                <span class="applicants-total-badge">{{ applications|length }}</span>
+            </h3>
+
+            {% if applications %}
+                {% for app in applications %}
+                <a href="{% url 'applicant_detail' job.id app.id %}" class="applicant-row-link">
+                    <div class="applicant-row">
+                        <div class="applicant-row-info">
+                            <strong>{{ app.candidate.user.get_full_name }}</strong>
+                            <span class="applicant-row-job">{{ app.candidate.city }}</span>
+                        </div>
+                        <div class="applicant-row-meta">
+                            <span class="application-status-badge {{ app.status }}">{{ app.get_status_display }}</span>
+                            <span class="applicant-row-date">{{ app.applied_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state-inline">
+                    <p>Nenhum candidato ainda.</p>
+                    {% if job.status == 'open' %}
+                        <p class="text-muted" style="font-size:0.9rem;">A vaga está aberta e visível para candidatos.</p>
+                    {% elif job.status == 'paused' %}
+                        <p class="text-muted" style="font-size:0.9rem;">A vaga está pausada e não aparece para candidatos.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
+
+</div>
+{% endblock %}

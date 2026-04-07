@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+{% endblock %}
+
+{% block content %}
+<div class="company-dashboard">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-nav">
+        <a href="{% url 'job_list_company' %}">Minhas vagas</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="{% url 'job_detail_company' job.id %}">{{ job.title }}</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>{{ candidate.user.get_full_name }}</span>
+    </nav>
+
+    <div class="applicant-detail-grid">
+
+        <!-- Candidate profile card -->
+        <section class="dashboard-card candidate-profile-card">
+            <div class="candidate-avatar">
+                {{ candidate.user.first_name|first }}{{ candidate.user.last_name|first }}
+            </div>
+            <h2 class="candidate-name">{{ candidate.user.get_full_name }}</h2>
+            <p class="candidate-email">{{ candidate.user.email }}</p>
+
+            <div class="candidate-info-list">
+                {% if candidate.phone %}
+                <div class="candidate-info-item">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>{{ candidate.phone }}</span>
+                </div>
+                {% endif %}
+                {% if candidate.city %}
+                <div class="candidate-info-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>{{ candidate.city }}{% if candidate.district %}, {{ candidate.district }}{% endif %}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Scout Score placeholder -->
+            <div class="score-section">
+                <p class="score-label">Scout Score</p>
+                <div class="score-circle-sm">
+                    <span>—</span>
+                </div>
+                <p class="score-hint">Calculado após feedbacks de empresas.</p>
+            </div>
+        </section>
+
+        <!-- Application detail + status control -->
+        <section class="dashboard-card application-detail-card">
+            <h3 class="panel-title">Candidatura para: {{ job.title }}</h3>
+
+            <div class="application-meta-row">
+                <span class="application-meta-date">
+                    <i class="fa-regular fa-calendar"></i> Enviada em {{ application.applied_at|date:"d/m/Y" }}
+                </span>
+                <span class="application-status-badge {{ application.status }}">{{ application.get_status_display }}</span>
+            </div>
+
+            {% if application.message %}
+            <div class="application-message-box">
+                <p class="application-message-label">Mensagem do candidato</p>
+                <p class="application-message-text">{{ application.message }}</p>
+            </div>
+            {% else %}
+            <p class="no-message-note">O candidato não enviou mensagem.</p>
+            {% endif %}
+
+            <!-- Status control -->
+            <div class="status-control mt-4">
+                <h4 class="status-control-label">Atualizar status da candidatura</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="status-buttons">
+                        <button
+                            type="submit"
+                            name="status"
+                            value="viewed"
+                            class="btn {% if application.status == 'viewed' %}status-btn--active status-btn--viewed{% else %}btn-gray{% endif %}"
+                            {% if application.status == 'viewed' %}disabled{% endif %}
+                        >
+                            Visualizado
+                        </button>
+                        <button
+                            type="submit"
+                            name="status"
+                            value="accepted"
+                            class="btn {% if application.status == 'accepted' %}status-btn--active status-btn--accepted{% else %}btn-gray{% endif %}"
+                            {% if application.status == 'accepted' %}disabled{% endif %}
+                        >
+                            Aprovado
+                        </button>
+                        <button
+                            type="submit"
+                            name="status"
+                            value="rejected"
+                            class="btn {% if application.status == 'rejected' %}status-btn--active status-btn--rejected{% else %}btn-gray{% endif %}"
+                            {% if application.status == 'rejected' %}disabled{% endif %}
+                        >
+                            Reprovado
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="back-link-row">
+                <a href="{% url 'job_detail_company' job.id %}" class="btn btn-gray mt-3">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Voltar para a vaga
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -20,7 +20,7 @@
 
         <hr class="detail-divider">
 
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="apply-field-group">
@@ -34,22 +34,33 @@
             </div>
 
             <div class="apply-field-group">
-                <label class="apply-label">Currículo</label>
-                <button type="button" class="btn btn-gray w-100" id="cv-btn" onclick="mockUploadCV()">
-                    <i class="fa-solid fa-file-arrow-up"></i> Fazer upload do currículo
-                </button>
-                <p class="apply-hint" id="cv-status"></p>
+                <label class="apply-label">Currículo *</label>
+                <label class="cv-upload-label {% if cv_error %}cv-upload-label--error{% endif %}" id="cv-label">
+                    <input
+                        type="file"
+                        name="cv"
+                        id="cv-input"
+                        accept=".pdf,.doc,.docx"
+                        class="cv-file-input"
+                    >
+                    <span class="cv-upload-icon"><i class="fa-solid fa-file-arrow-up"></i></span>
+                    <span class="cv-upload-text" id="cv-upload-text">Clique para selecionar o arquivo</span>
+                    <span class="cv-upload-hint">PDF, DOC ou DOCX — máximo 5 MB</span>
+                </label>
+                {% if cv_error %}
+                    <p class="input-error">{{ cv_error }}</p>
+                {% endif %}
             </div>
 
             <div class="apply-field-group">
-                <label class="apply-label" for="message">Mensagem para a empresa (opcional)</label>
+                <label class="apply-label" for="message">Mensagem para a empresa <span style="font-weight:400; color:#777;">(opcional)</span></label>
                 <textarea
                     id="message"
                     name="message"
                     class="email-input apply-textarea"
                     rows="4"
                     placeholder="Conte um pouco sobre você ou por que tem interesse nesta vaga..."
-                ></textarea>
+                >{{ message|default:'' }}</textarea>
             </div>
 
             <button type="submit" class="btn btn-black w-100 mt-2">Enviar candidatura</button>
@@ -60,17 +71,17 @@
 </div>
 
 <script>
-function mockUploadCV() {
-    const btn = document.getElementById('cv-btn');
-    const status = document.getElementById('cv-status');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando...';
-    setTimeout(() => {
-        btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Currículo carregado';
-        btn.style.color = '#1a7a3a';
-        status.textContent = 'curriculo.pdf identificado com sucesso.';
-        status.style.color = '#1a7a3a';
-    }, 1200);
-}
+document.getElementById('cv-input').addEventListener('change', function() {
+    var label = document.getElementById('cv-upload-text');
+    var uploadLabel = document.getElementById('cv-label');
+    if (this.files && this.files[0]) {
+        label.textContent = this.files[0].name;
+        uploadLabel.classList.add('cv-upload-label--selected');
+        uploadLabel.classList.remove('cv-upload-label--error');
+    } else {
+        label.textContent = 'Clique para selecionar o arquivo';
+        uploadLabel.classList.remove('cv-upload-label--selected');
+    }
+});
 </script>
 {% endblock %}

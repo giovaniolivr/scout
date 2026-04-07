@@ -29,9 +29,9 @@ class EmailVerificationToken(models.Model):
     @classmethod
     def generate_candidate_code(cls, email):
         """Creates a 4-digit numeric code for candidate email verification."""
-        import random
+        import secrets
         cls.objects.filter(email=email, user_type=cls.USER_TYPE_CANDIDATE, is_used=False).delete()
-        code = str(random.randint(1000, 9999))
+        code = str(secrets.randbelow(9000) + 1000)
         return cls.objects.create(email=email, token=code, user_type=cls.USER_TYPE_CANDIDATE)
 
     @classmethod

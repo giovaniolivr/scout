@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+{% endblock %}
+
+{% block content %}
+<div class="company-dashboard">
+
+    <h2 class="dashboard-title">Talentos Recomendados</h2>
+    <p class="dashboard-subtitle">
+        Candidatos ativos na plataforma que ainda não se candidataram às suas vagas.
+        Ordenados por engajamento — futuramente guiados pelo Scout Score.
+    </p>
+
+    {% if candidates %}
+        <div class="talent-grid">
+            {% for candidate in candidates %}
+            <div class="talent-card">
+                <div class="talent-card-avatar">
+                    {{ candidate.user.first_name|first }}{{ candidate.user.last_name|first }}
+                </div>
+                <div class="talent-card-body">
+                    <h4 class="talent-card-name">{{ candidate.user.get_full_name }}</h4>
+                    {% if candidate.city %}
+                    <p class="talent-card-location">
+                        <i class="fa-solid fa-location-dot"></i> {{ candidate.city }}
+                    </p>
+                    {% endif %}
+                    <p class="talent-card-activity">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        {{ candidate.application_count }} candidatura{{ candidate.application_count|pluralize }} na plataforma
+                    </p>
+                </div>
+                <div class="talent-card-score">
+                    <div class="score-badge" title="Scout Score">—</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-users empty-state-icon"></i>
+            <p>Nenhum talento disponível para recomendação no momento.</p>
+            <p class="text-muted" style="font-size:0.9rem;">
+                Isso acontece quando todos os candidatos ativos já se candidataram às suas vagas
+                — ou quando não há candidatos ativos na plataforma ainda.
+            </p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -11,6 +11,19 @@ class CandidateProfile(models.Model):
     district = models.CharField(max_length=100)
     street = models.CharField(max_length=200)
 
+    # Skills — stored as comma-separated strings; populated via the profile edit page.
+    hard_skills = models.TextField(blank=True, default='')
+    soft_skills = models.TextField(blank=True, default='')
+
+    def get_hard_skills_list(self):
+        return [s.strip() for s in self.hard_skills.split(',') if s.strip()]
+
+    def get_soft_skills_list(self):
+        return [s.strip() for s in self.soft_skills.split(',') if s.strip()]
+
+    def has_skills(self):
+        return bool(self.hard_skills.strip() or self.soft_skills.strip())
+
     def __str__(self):
         return f"{self.user.get_full_name()} ({self.user.email})"
 
@@ -32,6 +45,7 @@ class JobApplication(models.Model):
     applied_at = models.DateTimeField(auto_now_add=True)
     message = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    cv = models.FileField(upload_to='cvs/', blank=True)
 
     # Experience rating — filled by candidate after job closes
     experience_rating = models.IntegerField(null=True, blank=True)  # 1 to 5

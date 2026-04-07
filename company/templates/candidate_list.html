@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=8">
+{% endblock %}
+
+{% block content %}
+<div class="company-dashboard">
+
+    <h2 class="dashboard-title">Candidatos na Plataforma</h2>
+    <p class="dashboard-subtitle">Todos os candidatos registrados no Scout.</p>
+
+    <!-- Search -->
+    <form method="get" class="candidate-search-form">
+        <input
+            type="text"
+            name="q"
+            class="email-input candidate-search-input"
+            placeholder="Buscar por nome ou habilidade…"
+            value="{{ search }}"
+        >
+        <button type="submit" class="btn btn-black candidate-search-btn">Buscar</button>
+        {% if search %}
+            <a href="{% url 'candidate_list' %}" class="btn btn-gray candidate-search-btn">Limpar</a>
+        {% endif %}
+    </form>
+
+    {% if candidates %}
+        <p class="results-count">{{ candidates|length }} candidato{{ candidates|length|pluralize }} encontrado{{ candidates|length|pluralize }}</p>
+        <div class="candidate-grid">
+            {% for candidate in candidates %}
+            <div class="candidate-card">
+                <div class="candidate-card-avatar">
+                    {{ candidate.user.first_name|first }}{{ candidate.user.last_name|first }}
+                </div>
+                <div class="candidate-card-body">
+                    <h4 class="candidate-card-name">{{ candidate.user.get_full_name }}</h4>
+                    {% if candidate.city %}
+                    <p class="candidate-card-location">
+                        <i class="fa-solid fa-location-dot"></i> {{ candidate.city }}
+                    </p>
+                    {% endif %}
+
+                    {% if candidate.get_hard_skills_list %}
+                    <div class="candidate-card-skills">
+                        {% for skill in candidate.get_hard_skills_list %}
+                        <span class="skill-tag skill-tag--hard skill-tag--sm">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if candidate.get_soft_skills_list %}
+                    <div class="candidate-card-skills mt-1">
+                        {% for skill in candidate.get_soft_skills_list %}
+                        <span class="skill-tag skill-tag--soft skill-tag--sm">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if not candidate.has_skills %}
+                    <p class="candidate-card-no-skills">Perfil de habilidades ainda não preenchido.</p>
+                    {% endif %}
+                </div>
+                <div class="candidate-card-score">
+                    <div class="score-badge" title="Scout Score">—</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-users empty-state-icon"></i>
+            {% if search %}
+                <p>Nenhum candidato encontrado para "{{ search }}".</p>
+                <a href="{% url 'candidate_list' %}" class="btn btn-gray mt-3">Limpar busca</a>
+            {% else %}
+                <p>Nenhum candidato registrado na plataforma ainda.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

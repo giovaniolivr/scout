@@ -102,9 +102,25 @@
 .job-card-description {
     font-size: 0.9rem;
     color: #444;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     line-height: 1.5;
 }
+
+.job-card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+}
+
+.match-pct-inline {
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.match-high { color: #1a7a3a; }
+.match-mid  { color: #8a6500; }
+.match-low  { color: #a83232; }
 
 .job-card-footer {
     display: flex;

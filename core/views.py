@@ -353,13 +353,10 @@ def login_view(request):
         email = request.POST.get('email', '').strip().lower()
         password = request.POST.get('password', '')
 
-        try:
-            user_obj = User.objects.get(email=email)
-        except User.DoesNotExist:
-            messages.error(request, 'E-mail ou senha incorretos.')
-            return render(request, 'login.html', {'hide_nav_links': True})
-
-        user = authenticate(request, username=user_obj.username, password=password)
+        # Use email as username directly — users are always created with username=email.
+        # We do NOT pre-check User.objects.get(email=...) to avoid leaking whether an
+        # email is registered (user enumeration).
+        user = authenticate(request, username=email, password=password)
 
         if user is None:
             messages.error(request, 'E-mail ou senha incorretos.')

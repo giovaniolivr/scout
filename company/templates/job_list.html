@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+{% endblock %}
+
+{% block content %}
+<div class="company-dashboard">
+
+    <div class="page-header">
+        <div>
+            <h2 class="dashboard-title">Minhas Vagas</h2>
+            <p class="dashboard-subtitle">Gerencie todas as vagas publicadas pela sua empresa.</p>
+        </div>
+        <a href="{% url 'job_create' %}" class="btn btn-black page-header-btn">
+            <i class="fa-solid fa-plus me-2"></i>Publicar vaga
+        </a>
+    </div>
+
+    {% if jobs %}
+        <div class="jobs-table">
+            {% for job in jobs %}
+            <a href="{% url 'job_detail_company' job.id %}" class="job-row-link">
+                <div class="job-row">
+                    <div class="job-row-main">
+                        <h4 class="job-row-title">{{ job.title }}</h4>
+                        <p class="job-row-meta">
+                            <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+                            &nbsp;·&nbsp;
+                            {{ job.get_job_type_display }}
+                            &nbsp;·&nbsp;
+                            Publicada em {{ job.created_at|date:"d/m/Y" }}
+                        </p>
+                    </div>
+                    <div class="job-row-aside">
+                        <span class="applicants-count">
+                            <i class="fa-solid fa-users"></i>
+                            {{ job.application_count }} candidato{{ job.application_count|pluralize }}
+                        </span>
+                        <span class="job-status {{ job.status }}">{{ job.get_status_display }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-briefcase empty-state-icon"></i>
+            <p>Você ainda não publicou nenhuma vaga.</p>
+            <a href="{% url 'job_create' %}" class="btn btn-black mt-3">Publicar primeira vaga</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

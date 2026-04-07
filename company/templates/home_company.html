@@ -2,74 +2,120 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/company.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
 {% endblock %}
 
 {% block content %}
 <div class="company-dashboard">
 
     <h2 class="dashboard-title">Painel — {{ request.user.company_profile.company_name }}</h2>
-    <p class="dashboard-subtitle">Acompanhe suas vagas e visualize talentos em destaque.</p>
+    <p class="dashboard-subtitle">Gerencie suas vagas e encontre os melhores talentos.</p>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-number">{{ open_jobs_count }}</span>
+            <span class="stat-label">Vagas abertas</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_jobs_count }}</span>
+            <span class="stat-label">Total de vagas</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_applications }}</span>
+            <span class="stat-label">Candidaturas recebidas</span>
+        </div>
+        <div class="stat-card {% if new_applications > 0 %}stat-card--highlight{% endif %}">
+            <span class="stat-number">{{ new_applications }}</span>
+            <span class="stat-label">Novas (não vistas)</span>
+        </div>
+    </div>
 
     <div class="dashboard-grid">
 
-        <!-- Active Jobs -->
-        <section class="dashboard-card">
-            <h3 class="panel-title">Vagas Ativas</h3>
-
-            <div class="job-item">
-                <h4>Desenvolvedor Full Stack Jr</h4>
-                <p>7 candidatos aplicados</p>
-                <span class="job-status open">Aberta</span>
+        <!-- Recent applications -->
+        <section class="dashboard-card panel-flex">
+            <div class="panel-header">
+                <h3 class="panel-title">Candidaturas Recentes</h3>
+                {% if total_applications > 0 %}
+                    <a href="{% url 'job_list_company' %}" class="panel-link">Ver vagas</a>
+                {% endif %}
             </div>
 
-            <div class="job-item">
-                <h4>Estagiário em Suporte TI</h4>
-                <p>3 candidatos aplicados</p>
-                <span class="job-status paused">Pausada</span>
+            <div class="panel-body">
+                {% if recent_applications %}
+                    {% for app in recent_applications %}
+                    <a href="{% url 'applicant_detail' app.job.id app.id %}" class="applicant-row-link">
+                        <div class="applicant-row">
+                            <div class="applicant-row-info">
+                                <strong>{{ app.candidate.user.get_full_name }}</strong>
+                                <span class="applicant-row-job">{{ app.job.title }}</span>
+                            </div>
+                            <div class="applicant-row-meta">
+                                <span class="application-status-badge {{ app.status }}">{{ app.get_status_display }}</span>
+                                <span class="applicant-row-date">{{ app.applied_at|date:"d/m" }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-inline">
+                        <p>Nenhuma candidatura ainda.</p>
+                    </div>
+                {% endif %}
             </div>
 
-            <div class="job-item">
-                <h4>Analista de QA Jr</h4>
-                <p>12 candidatos aplicados</p>
-                <span class="job-status open">Aberta</span>
+            <div class="panel-footer">
+                <a href="{% url 'job_create' %}" class="btn btn-black w-100">Publicar nova vaga</a>
             </div>
-
-            <button class="btn btn-black w-100 mt-3">Criar nova vaga</button>
         </section>
 
-        <!-- Recommended Talents -->
-        <section class="dashboard-card">
-            <h3 class="panel-title">Talentos Recomendados</h3>
-
-            <div class="talent-item">
-                <div>
-                    <strong>Ana Ribeiro</strong>
-                    <p class="talent-skill">Soft Skills: Comunicação · Resiliência · Proatividade</p>
-                </div>
-                <span class="score-badge">92</span>
+        <!-- Recent jobs -->
+        <section class="dashboard-card panel-flex">
+            <div class="panel-header">
+                <h3 class="panel-title">Suas Vagas</h3>
+                <a href="{% url 'job_list_company' %}" class="panel-link">Ver todas</a>
             </div>
 
-            <div class="talent-item">
-                <div>
-                    <strong>Lucas Andrade</strong>
-                    <p class="talent-skill">Skills: Trabalho em Equipe · Criatividade</p>
-                </div>
-                <span class="score-badge">88</span>
+            <div class="panel-body">
+                {% if recent_jobs %}
+                    {% for job in recent_jobs %}
+                    <a href="{% url 'job_detail_company' job.id %}" class="job-row-link">
+                        <div class="job-item">
+                            <div class="job-item-header">
+                                <h4>{{ job.title }}</h4>
+                                <span class="job-status {{ job.status }}">{{ job.get_status_display }}</span>
+                            </div>
+                            <p class="job-item-meta"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-inline">
+                        <p>Você ainda não publicou nenhuma vaga.</p>
+                    </div>
+                {% endif %}
             </div>
 
-            <div class="talent-item">
-                <div>
-                    <strong>Camila Torres</strong>
-                    <p class="talent-skill">Soft Skills: Liderança · Adaptabilidade</p>
-                </div>
-                <span class="score-badge">85</span>
+            <div class="panel-footer">
+                <a href="{% url 'job_create' %}" class="btn btn-black w-100">Publicar nova vaga</a>
             </div>
-
-            <button class="btn btn-gray w-100 mt-3">Ver todos talentos</button>
         </section>
 
     </div>
+
+    <!-- Recommended talent teaser -->
+    <section class="dashboard-card recommendations-teaser mt-4">
+        <div class="panel-header">
+            <h3 class="panel-title">Talentos Recomendados</h3>
+            <a href="{% url 'recommendations' %}" class="panel-link">Ver todos</a>
+        </div>
+        <p class="recommendations-teaser-text">
+            Veja candidatos ativos na plataforma que ainda não se candidataram às suas vagas —
+            podem ser o perfil que você está procurando.
+        </p>
+        <a href="{% url 'recommendations' %}" class="btn btn-gray">Explorar talentos</a>
+    </section>
 
 </div>
 {% endblock %}

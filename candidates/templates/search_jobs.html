@@ -69,8 +69,28 @@
                 </div>
                 <p class="job-card-location"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</p>
                 <p class="job-card-description">{{ job.description|truncatechars:160 }}</p>
+
+                {% if job.has_requirements %}
+                <div class="job-card-skills">
+                    {% for skill in job.get_required_hard_skills_list %}
+                    <span class="skill-tag skill-tag--hard skill-tag--sm">{{ skill }}</span>
+                    {% endfor %}
+                    {% for skill in job.get_required_soft_skills_list %}
+                    <span class="skill-tag skill-tag--soft skill-tag--sm">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <div class="job-card-footer">
-                    <span class="job-card-date">Publicada em {{ job.created_at|date:"d/m/Y" }}</span>
+                    <span class="job-card-date">
+                        Publicada em {{ job.created_at|date:"d/m/Y" }}
+                        {% if candidate_has_skills and job.has_requirements and job.match_score is not None %}
+                        &nbsp;·&nbsp;
+                        <span class="match-pct-inline {% if job.match_score >= 70 %}match-high{% elif job.match_score >= 40 %}match-mid{% else %}match-low{% endif %}">
+                            {{ job.match_score }}% match
+                        </span>
+                        {% endif %}
+                    </span>
                     {% if job.external_url %}
                         <form method="post" action="{% url 'apply_external' job.id %}">
                             {% csrf_token %}

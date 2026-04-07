@@ -13,6 +13,25 @@ def _require_candidate(request):
     return None
 
 
+def _rank_jobs_for_candidate(jobs_qs, candidate_profile):
+    """
+    Evaluates the queryset and attaches a `match_score` attribute to each job.
+    When the candidate has skills, results are sorted by match descending.
+    When no skills are set, the original ordering is preserved and match_score
+    is set to None on all jobs (template handles the display).
+    """
+    jobs = list(jobs_qs)
+    for job in jobs:
+        job.match_score = job.match_score(candidate_profile)
+
+    if candidate_profile.has_skills():
+        # Jobs with no requirements (score=None) are treated as a neutral 100%
+        # so they stay visible alongside strong matches.
+        jobs.sort(key=lambda j: j.match_score if j.match_score is not None else 100, reverse=True)
+
+    return jobs
+
+
 @login_required
 def home_candidate(request):
     redir = _require_candidate(request)
@@ -37,17 +56,17 @@ def home_candidate(request):
     )
     total_applications = JobApplication.objects.filter(candidate=profile).count()
 
-    # ----------------------------------------------------------------
-    # RECOMMENDATION HOOK — replace with soft-skill / preference
-    # matching algorithm when profile data is available.
-    # ----------------------------------------------------------------
-    recommended_jobs = (
+    open_jobs = (
         Job.objects
         .filter(status=Job.STATUS_OPEN)
         .exclude(id__in=applied_job_ids)
         .select_related('company')
-        .order_by('-created_at')[:3]
+        .order_by('-created_at')
     )
+
+    # RECOMMENDATION HOOK — when the candidate has skills set, score and sort
+    # jobs by match. Falls back to recency ordering when no skills are on file.
+    recommended_jobs = _rank_jobs_for_candidate(open_jobs, profile)[:3]
 
     return render(request, 'home_candidate.html', {
         'recent_applications': recent_applications,
@@ -96,9 +115,10 @@ def search_jobs(request):
     applied_ids = set(
         JobApplication.objects.filter(candidate=profile).values_list('job_id', flat=True)
     )
-
-    # Exclude already-applied jobs from results
     jobs = jobs.exclude(id__in=applied_ids)
+
+    # Rank by skill match when the candidate has skills on file
+    jobs = _rank_jobs_for_candidate(jobs, profile)
 
     return render(request, 'search_jobs.html', {
         'jobs': jobs,
@@ -106,6 +126,7 @@ def search_jobs(request):
         'location': location,
         'job_type': job_type,
         'type_choices': Job.TYPE_CHOICES,
+        'candidate_has_skills': profile.has_skills(),
     })
 
 
@@ -118,10 +139,13 @@ def job_detail(request, job_id):
     job = get_object_or_404(Job, pk=job_id)
     profile = request.user.candidate_profile
     application = JobApplication.objects.filter(candidate=profile, job=job).first()
+    match = job.match_score(profile)
 
     return render(request, 'job_detail.html', {
         'job': job,
         'application': application,
+        'match_score': match,
+        'candidate_has_skills': profile.has_skills(),
     })
 
 
@@ -139,11 +163,27 @@ def apply_job(request, job_id):
 
     if request.method == 'POST':
         message_text = request.POST.get('message', '').strip()
+        cv_file = request.FILES.get('cv')
+
+        cv_error = None
+        if not cv_file:
+            cv_error = 'O envio do currículo é obrigatório.'
+        else:
+            allowed_extensions = ('.pdf', '.doc', '.docx')
+            ext = cv_file.name.rsplit('.', 1)[-1].lower()
+            if f'.{ext}' not in allowed_extensions:
+                cv_error = 'Formato inválido. Envie um arquivo PDF, DOC ou DOCX.'
+            elif cv_file.size > 5 * 1024 * 1024:
+                cv_error = 'O arquivo é muito grande. O tamanho máximo é 5 MB.'
+
+        if cv_error:
+            return render(request, 'apply_job.html', {'job': job, 'cv_error': cv_error, 'message': message_text})
 
         JobApplication.objects.create(
             candidate=profile,
             job=job,
             message=message_text,
+            cv=cv_file,
         )
 
         messages.success(request, f'Candidatura enviada para "{job.title}"!')

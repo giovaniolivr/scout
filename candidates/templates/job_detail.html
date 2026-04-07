@@ -31,6 +31,42 @@
 
         <hr class="detail-divider">
 
+        {% if job.has_requirements %}
+        <div class="skills-section">
+            {% if job.get_required_hard_skills_list %}
+            <div class="skills-group">
+                <p class="skills-group-label">Habilidades técnicas</p>
+                <div class="skills-tags">
+                    {% for skill in job.get_required_hard_skills_list %}
+                    <span class="skill-tag skill-tag--hard">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% if job.get_required_soft_skills_list %}
+            <div class="skills-group">
+                <p class="skills-group-label">Habilidades comportamentais</p>
+                <div class="skills-tags">
+                    {% for skill in job.get_required_soft_skills_list %}
+                    <span class="skill-tag skill-tag--soft">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if candidate_has_skills %}
+            <div class="match-indicator">
+                <span class="match-label">Compatibilidade com seu perfil</span>
+                <div class="match-bar-wrap">
+                    <div class="match-bar" style="width: {{ match_score|default:0 }}%"></div>
+                </div>
+                <span class="match-pct">{{ match_score|default:0 }}%</span>
+            </div>
+            {% endif %}
+        </div>
+        <hr class="detail-divider">
+        {% endif %}
+
         <h4 class="detail-section-title">Descrição da vaga</h4>
         <p class="job-detail-description">{{ job.description }}</p>
 

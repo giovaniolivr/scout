@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=9">
+{% endblock %}
+
+{% block content %}
+<div class="company-form-container">
+    <div class="company-form-inner">
+
+        <h2 class="dashboard-title">Publicar nova vaga</h2>
+        <p class="dashboard-subtitle">Preencha os detalhes da posição que você está oferecendo.</p>
+
+        <form method="post" id="jobCreateForm">
+            {% csrf_token %}
+
+            <div class="form-section">
+                <label class="form-label">Título da vaga *</label>
+                <input
+                    type="text"
+                    name="title"
+                    class="email-input"
+                    placeholder="Ex: Desenvolvedor Back-end Pleno"
+                    value="{{ form_data.title|default:'' }}"
+                    maxlength="200"
+                >
+                {% if errors.title %}<p class="input-error">{{ errors.title }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Localização *</label>
+                <input
+                    type="text"
+                    name="location"
+                    class="email-input"
+                    placeholder="Ex: São Paulo, SP"
+                    value="{{ form_data.location|default:'' }}"
+                    maxlength="100"
+                >
+                {% if errors.location %}<p class="input-error">{{ errors.location }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Tipo de vaga *</label>
+                <select name="job_type" class="email-input">
+                    <option value="">Selecione o tipo</option>
+                    {% for value, label in type_choices %}
+                        <option value="{{ value }}" {% if form_data.job_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors.job_type %}<p class="input-error">{{ errors.job_type }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Descrição da vaga *</label>
+                <textarea
+                    name="description"
+                    class="email-input job-description-input"
+                    placeholder="Descreva as responsabilidades, requisitos e benefícios da vaga…"
+                    rows="8"
+                >{{ form_data.description|default:'' }}</textarea>
+                {% if errors.description %}<p class="input-error">{{ errors.description }}</p>{% endif %}
+            </div>
+
+            <!-- Skills — two panels side by side -->
+            <div class="skills-panels">
+
+                <div class="form-section">
+                    <label class="form-label">
+                        Habilidades técnicas
+                        <span class="optional-label">(opcional)</span>
+                    </label>
+                    <div class="skill-tag-input" id="hardSkillsContainer">
+                        <div class="skill-tags-selected"></div>
+                        <input
+                            type="text"
+                            class="skill-search-input"
+                            placeholder="Clique ou digite para buscar…"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <div class="skill-dropdown" role="listbox"></div>
+                    </div>
+                    <input type="hidden" name="required_hard_skills" id="hardSkillsValue"
+                           value="{{ form_data.required_hard_skills|default:'' }}">
+                    <p class="field-hint">Pressione Backspace para remover a última.</p>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">
+                        Habilidades comportamentais
+                        <span class="optional-label">(opcional)</span>
+                    </label>
+                    <div class="skill-tag-input" id="softSkillsContainer">
+                        <div class="skill-tags-selected"></div>
+                        <input
+                            type="text"
+                            class="skill-search-input"
+                            placeholder="Clique ou digite para buscar…"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <div class="skill-dropdown" role="listbox"></div>
+                    </div>
+                    <input type="hidden" name="required_soft_skills" id="softSkillsValue"
+                           value="{{ form_data.required_soft_skills|default:'' }}">
+                    <p class="field-hint">Pressione Backspace para remover a última.</p>
+                </div>
+
+            </div>
+
+            <!-- External link -->
+            <div class="form-section">
+                <label class="form-label">
+                    Link externo <span class="optional-label-inline">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="external_url"
+                    class="email-input"
+                    placeholder="https://linkedin.com/jobs/… (deixe em branco para candidaturas pelo Scout)"
+                    value="{{ form_data.external_url|default:'' }}"
+                >
+                <p class="field-hint">Se preenchido, candidatos serão direcionados a esse link ao se candidatarem.</p>
+            </div>
+
+            <div class="form-actions form-actions--centered">
+                <button type="submit" class="btn btn-black">Publicar vaga</button>
+                <a href="{% url 'job_list_company' %}" class="btn btn-gray">Cancelar</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/skills.js' %}"></script>
+{% endblock %}
