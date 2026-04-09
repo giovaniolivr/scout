@@ -55,6 +55,13 @@
         <!-- Application detail + status control -->
         <section class="dashboard-card application-detail-card">
             <h3 class="panel-title">Candidatura para: {{ job.title }}</h3>
+            {% if job.job_area or job.seniority %}
+            <p class="job-info-meta" style="margin-bottom: 1rem;">
+                {% if job.job_area %}{{ job.get_job_area_display }}{% endif %}
+                {% if job.job_area and job.seniority %}&nbsp;·&nbsp;{% endif %}
+                {% if job.seniority %}{{ job.get_seniority_display }}{% endif %}
+            </p>
+            {% endif %}
 
             <div class="application-meta-row">
                 <span class="application-meta-date">
@@ -62,6 +69,15 @@
                 </span>
                 <span class="application-status-badge {{ application.status }}">{{ application.get_status_display }}</span>
             </div>
+
+            {% if application.cv %}
+            <div class="application-message-box">
+                <p class="application-message-label">Currículo enviado</p>
+                <a href="{{ application.cv.url }}" target="_blank" rel="noopener" class="btn btn-gray btn-sm">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i> Baixar currículo
+                </a>
+            </div>
+            {% endif %}
 
             {% if application.message %}
             <div class="application-message-box">

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <!-- Header card -->
+    <div class="profile-header-card dashboard-card">
+        <div class="profile-avatar-lg">
+            {{ profile.user.first_name|first }}{{ profile.user.last_name|first }}
+        </div>
+        <div class="profile-identity">
+            <h2 class="profile-name">{{ profile.user.get_full_name }}</h2>
+            {% if profile.desired_area or profile.desired_seniority %}
+                <p class="profile-role">
+                    {% if profile.desired_seniority %}{{ profile.get_desired_seniority_display }}{% endif %}
+                    {% if profile.desired_area and profile.desired_seniority %} · {% endif %}
+                    {% if profile.desired_area %}{{ profile.get_desired_area_display }}{% endif %}
+                </p>
+            {% endif %}
+            <div class="profile-meta-row">
+                {% if profile.city %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ profile.city }}{% if profile.district %}, {{ profile.district }}{% endif %}
+                </span>
+                {% endif %}
+                {% if profile.linkedin_url %}
+                <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
+                    <i class="fa-brands fa-linkedin"></i> LinkedIn
+                </a>
+                {% endif %}
+                {% if profile.github_url %}
+                <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'edit_profile_candidate' %}" class="btn btn-gray profile-edit-btn">
+            <i class="fa-solid fa-pen me-1"></i> Editar perfil
+        </a>
+    </div>
+
+    <!-- Body -->
+    <div class="profile-body-grid">
+
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+
+            <div class="dashboard-card profile-score-card">
+                <h3 class="panel-title">Scout Score</h3>
+                <div class="score-circle">
+                    <span>—</span>
+                </div>
+                <p class="score-description">Calculado após os primeiros feedbacks das empresas.</p>
+            </div>
+
+            {% if profile.education_level %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-graduation-cap me-1"></i> Escolaridade</p>
+                <p class="profile-info-value">{{ profile.get_education_level_display }}</p>
+            </div>
+            {% endif %}
+
+            {% if profile.profile_cv %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-file-lines me-1"></i> Currículo</p>
+                <a href="{{ profile.profile_cv.url }}" target="_blank" rel="noopener" class="btn btn-black btn-sm w-100 mt-1">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i> Download CV
+                </a>
+            </div>
+            {% endif %}
+
+        </aside>
+
+        <!-- Main content -->
+        <section class="profile-main">
+
+            {% if profile.bio %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Sobre mim</h3>
+                <p class="profile-bio">{{ profile.bio }}</p>
+            </div>
+            {% endif %}
+
+            {% with visible_soft=profile.get_visible_soft_skills_list visible_hard=profile.get_visible_hard_skills_list %}
+            {% if visible_soft or visible_hard %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Habilidades</h3>
+
+                {% if visible_hard %}
+                <div class="skills-group">
+                    <p class="skills-group-label">Técnicas</p>
+                    <div class="skills-tags">
+                        {% for skill in visible_hard %}
+                        <span class="skill-tag skill-tag--hard">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if visible_soft %}
+                <div class="skills-group {% if visible_hard %}mt-3{% endif %}">
+                    <p class="skills-group-label">Comportamentais</p>
+                    <div class="skills-tags">
+                        {% for skill in visible_soft %}
+                        <span class="skill-tag skill-tag--soft">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+            {% elif not profile.has_skills %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Habilidades</h3>
+                <p class="profile-empty-hint">
+                    Nenhuma habilidade adicionada ainda.
+                    <a href="{% url 'edit_profile_candidate' %}">Adicionar habilidades →</a>
+                </p>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+        </section>
+    </div>
+
+</div>
+{% endblock %}

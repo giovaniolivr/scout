@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-container">
+    <div class="onboarding-inner">
+
+        <div class="onboarding-header">
+            <div class="onboarding-step-indicator">
+                <span class="step done">1</span>
+                <span class="step-line"></span>
+                <span class="step active">2</span>
+            </div>
+            <h2 class="onboarding-title">Antes de continuar, nos diga mais sobre você!</h2>
+            <p class="onboarding-subtitle">
+                Essas informações ajudam as empresas a te conhecerem melhor e
+                aumentam suas chances de ser encontrado.
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- Bio -->
+            <div class="form-section">
+                <label class="form-label">Apresentação *</label>
+                <textarea
+                    name="bio"
+                    class="email-input profile-textarea"
+                    placeholder="Fale um pouco sobre você — experiência, o que você gosta de fazer, o que está buscando…"
+                    rows="4"
+                    maxlength="500"
+                >{{ form_data.bio|default:'' }}</textarea>
+                <p class="field-hint">Mínimo 20 caracteres, máximo 500.</p>
+                {% if errors.bio %}<p class="input-error">{{ errors.bio }}</p>{% endif %}
+            </div>
+
+            <!-- Area + Seniority -->
+            <div class="form-section">
+                <label class="form-label">Área de atuação *</label>
+                <select name="desired_area" class="email-input">
+                    <option value="">Selecione uma área…</option>
+                    {% for value, label in job_areas %}
+                        <option value="{{ value }}" {% if form_data.desired_area == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors.desired_area %}<p class="input-error">{{ errors.desired_area }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Nível de senioridade *</label>
+                <select name="desired_seniority" class="email-input">
+                    <option value="">Selecione um nível…</option>
+                    {% for value, label in seniority_levels %}
+                        <option value="{{ value }}" {% if form_data.desired_seniority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors.desired_seniority %}<p class="input-error">{{ errors.desired_seniority }}</p>{% endif %}
+            </div>
+
+            <!-- Education level -->
+            <div class="form-section">
+                <label class="form-label">Nível de escolaridade *</label>
+                <select name="education_level" class="email-input">
+                    <option value="">Selecione…</option>
+                    {% for value, label in education_choices %}
+                        <option value="{{ value }}" {% if form_data.education_level == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors.education_level %}<p class="input-error">{{ errors.education_level }}</p>{% endif %}
+            </div>
+
+            <!-- Soft skills -->
+            <div class="form-section">
+                <label class="form-label">
+                    Habilidades comportamentais *
+                    <span class="optional-label">(pelo menos uma)</span>
+                </label>
+                <div class="skill-tag-input" id="softSkillsContainer">
+                    <div class="skill-tags-selected"></div>
+                    <input
+                        type="text"
+                        class="skill-search-input"
+                        placeholder="Clique ou digite para buscar…"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <div class="skill-dropdown" role="listbox"></div>
+                </div>
+                <input type="hidden" name="soft_skills" id="softSkillsValue"
+                       value="{{ form_data.soft_skills|default:'' }}">
+                <p class="field-hint">Ex: Comunicação, Trabalho em Equipe, Proatividade…</p>
+                {% if errors.soft_skills %}<p class="input-error">{{ errors.soft_skills }}</p>{% endif %}
+            </div>
+
+            <!-- Hard skills -->
+            <div class="form-section">
+                <label class="form-label">
+                    Habilidades técnicas
+                    <span class="optional-label">(opcional)</span>
+                </label>
+                <div class="skill-tag-input" id="hardSkillsContainer">
+                    <div class="skill-tags-selected"></div>
+                    <input
+                        type="text"
+                        class="skill-search-input"
+                        placeholder="Clique ou digite para buscar…"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <div class="skill-dropdown" role="listbox"></div>
+                </div>
+                <input type="hidden" name="hard_skills" id="hardSkillsValue"
+                       value="{{ form_data.hard_skills|default:'' }}">
+                <p class="field-hint">Ex: Python, React, Docker…</p>
+            </div>
+
+            <!-- CV upload — MOCK: not required during onboarding, file is saved if provided.
+                 To enforce in production: add server-side required validation in onboarding_candidate view. -->
+            <div class="form-section">
+                <label class="form-label">
+                    Currículo
+                    <span class="optional-label">(pode enviar depois)</span>
+                </label>
+                <label class="file-upload-label" id="cvUploadLabel">
+                    <i class="fa-solid fa-cloud-arrow-up me-2" id="cvUploadIcon"></i>
+                    <span id="cvFileName">Clique para selecionar um arquivo</span>
+                    <input
+                        type="file"
+                        name="profile_cv"
+                        id="profileCvInput"
+                        accept=".pdf,.doc,.docx"
+                        class="file-upload-input"
+                    >
+                </label>
+                <p class="field-hint">PDF, DOC ou DOCX — máximo 5 MB.</p>
+                {% if errors.profile_cv %}<p class="input-error">{{ errors.profile_cv }}</p>{% endif %}
+            </div>
+
+            <!-- LinkedIn -->
+            <div class="form-section">
+                <label class="form-label">
+                    LinkedIn
+                    <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="linkedin_url"
+                    class="email-input"
+                    placeholder="https://linkedin.com/in/seu-perfil"
+                    value="{{ form_data.linkedin_url|default:'' }}"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-black w-100 mt-2">
+                Concluir e entrar na plataforma
+            </button>
+
+        </form>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/skills.js' %}"></script>
+<script>
+document.getElementById('profileCvInput').addEventListener('change', function() {
+    if (this.files[0]) {
+        document.getElementById('cvFileName').textContent = this.files[0].name;
+        document.getElementById('cvUploadIcon').className = 'fa-solid fa-circle-check me-2';
+        document.getElementById('cvUploadLabel').style.backgroundColor = '#d4edda';
+        document.getElementById('cvUploadLabel').style.color = '#155724';
+    }
+});
+</script>
+{% endblock %}

@@ -23,7 +23,7 @@
                         Scout
                     </a>
 
-                    {% if user_is_candidate %}
+                    {% if user_is_candidate and not onboarding_mode %}
                         <div class="d-flex align-items-center">
                             {% if request.resolver_match.url_name != 'search_jobs' %}
                             <a href="{% url 'search_jobs' %}" class="nav-link text-white me-3">Procurar vagas</a>
@@ -35,10 +35,9 @@
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><h6 class="dropdown-header">{{ request.user.get_full_name }}<br><small>{{ request.user.email }}</small></h6></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#">Configurações da conta</a></li>
-                                    <li><a class="dropdown-item" href="#">Editar perfil</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'profile_candidate' %}">Meu perfil</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'edit_profile_candidate' %}">Editar perfil</a></li>
                                     <li><a class="dropdown-item" href="{% url 'all_applications' %}">Vagas aplicadas</a></li>
-                                    <li><a class="dropdown-item" href="#">Histórico de avaliações</a></li>
                                     <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Sair</a></li>
                                 </ul>
                             </div>

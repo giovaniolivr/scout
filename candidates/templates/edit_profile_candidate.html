@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="company-form-container">
+    <div class="company-form-inner">
+
+        <div class="page-header">
+            <div>
+                <h2 class="dashboard-title">Editar Perfil</h2>
+                <p class="dashboard-subtitle">Mantenha suas informações atualizadas para se destacar.</p>
+            </div>
+            <a href="{% url 'profile_candidate' %}" class="btn btn-gray page-header-btn">
+                <i class="fa-solid fa-arrow-left me-1"></i> Ver perfil
+            </a>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- ── Sobre você ────────────────────────────────────────── -->
+            <h3 class="form-section-heading">Sobre você</h3>
+
+            <div class="form-section">
+                <label class="form-label">Apresentação *</label>
+                <textarea
+                    name="bio"
+                    class="email-input profile-textarea"
+                    placeholder="Fale um pouco sobre você…"
+                    rows="4"
+                    maxlength="500"
+                >{{ form_data.bio|default:profile.bio }}</textarea>
+                <p class="field-hint">Mínimo 20 caracteres, máximo 500.</p>
+                {% if errors.bio %}<p class="input-error">{{ errors.bio }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Área de atuação *</label>
+                <select name="desired_area" class="email-input">
+                    <option value="">Selecione uma área…</option>
+                    {% for value, label in job_areas %}
+                        <option value="{{ value }}"
+                            {% if form_data.desired_area == value or profile.desired_area == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if errors.desired_area %}<p class="input-error">{{ errors.desired_area }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Nível de senioridade *</label>
+                <select name="desired_seniority" class="email-input">
+                    <option value="">Selecione um nível…</option>
+                    {% for value, label in seniority_levels %}
+                        <option value="{{ value }}"
+                            {% if form_data.desired_seniority == value or profile.desired_seniority == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if errors.desired_seniority %}<p class="input-error">{{ errors.desired_seniority }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Nível de escolaridade *</label>
+                <select name="education_level" class="email-input">
+                    <option value="">Selecione…</option>
+                    {% for value, label in education_choices %}
+                        <option value="{{ value }}"
+                            {% if form_data.education_level == value or profile.education_level == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if errors.education_level %}<p class="input-error">{{ errors.education_level }}</p>{% endif %}
+            </div>
+
+            <!-- ── Habilidades ───────────────────────────────────────── -->
+            <h3 class="form-section-heading">Habilidades</h3>
+
+            <div class="skills-panels">
+
+                <div class="form-section">
+                    <label class="form-label">
+                        Comportamentais *
+                        <span class="optional-label">(pelo menos uma)</span>
+                    </label>
+                    <div class="skill-tag-input" id="softSkillsContainer">
+                        <div class="skill-tags-selected"></div>
+                        <input
+                            type="text"
+                            class="skill-search-input"
+                            placeholder="Clique ou digite para buscar…"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <div class="skill-dropdown" role="listbox"></div>
+                    </div>
+                    <input type="hidden" name="soft_skills" id="softSkillsValue"
+                           value="{{ form_data.soft_skills|default:profile.soft_skills }}">
+                    {% if errors.soft_skills %}<p class="input-error">{{ errors.soft_skills }}</p>{% endif %}
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">
+                        Técnicas
+                        <span class="optional-label">(opcional)</span>
+                    </label>
+                    <div class="skill-tag-input" id="hardSkillsContainer">
+                        <div class="skill-tags-selected"></div>
+                        <input
+                            type="text"
+                            class="skill-search-input"
+                            placeholder="Clique ou digite para buscar…"
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <div class="skill-dropdown" role="listbox"></div>
+                    </div>
+                    <input type="hidden" name="hard_skills" id="hardSkillsValue"
+                           value="{{ form_data.hard_skills|default:profile.hard_skills }}">
+                </div>
+
+            </div>
+
+            <!-- ── Visibilidade ──────────────────────────────────────── -->
+            {% with all_soft=profile.get_soft_skills_list all_hard=profile.get_hard_skills_list %}
+            {% if all_soft or all_hard %}
+            <h3 class="form-section-heading">Visibilidade das habilidades</h3>
+            <p class="field-hint mb-3">
+                Escolha quais habilidades aparecem no seu perfil público.
+                As habilidades ocultas continuam sendo usadas para combinar vagas e não são apagadas.
+            </p>
+
+            {% if all_soft %}
+            <div class="form-section">
+                <label class="form-label">Comportamentais</label>
+                <div class="visibility-pills" id="softVisibilityPills">
+                    {% for skill in all_soft %}
+                    <button
+                        type="button"
+                        class="visibility-pill {% if skill in profile.get_hidden_soft_skills_set %}visibility-hidden{% endif %}"
+                        data-skill="{{ skill }}"
+                        title="{% if skill in profile.get_hidden_soft_skills_set %}Oculto — clique para exibir{% else %}Visível — clique para ocultar{% endif %}"
+                    >
+                        <i class="fa-regular {% if skill in profile.get_hidden_soft_skills_set %}fa-eye-slash{% else %}fa-eye{% endif %} vis-icon"></i>
+                        {{ skill }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="hidden_soft_skills" id="hiddenSoftSkillsInput"
+                       value="{{ profile.hidden_soft_skills }}">
+            </div>
+            {% endif %}
+
+            {% if all_hard %}
+            <div class="form-section">
+                <label class="form-label">Técnicas</label>
+                <div class="visibility-pills" id="hardVisibilityPills">
+                    {% for skill in all_hard %}
+                    <button
+                        type="button"
+                        class="visibility-pill {% if skill in profile.get_hidden_hard_skills_set %}visibility-hidden{% endif %}"
+                        data-skill="{{ skill }}"
+                        title="{% if skill in profile.get_hidden_hard_skills_set %}Oculto — clique para exibir{% else %}Visível — clique para ocultar{% endif %}"
+                    >
+                        <i class="fa-regular {% if skill in profile.get_hidden_hard_skills_set %}fa-eye-slash{% else %}fa-eye{% endif %} vis-icon"></i>
+                        {{ skill }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="hidden_hard_skills" id="hiddenHardSkillsInput"
+                       value="{{ profile.hidden_hard_skills }}">
+            </div>
+            {% endif %}
+
+            {% endif %}
+            {% endwith %}
+
+            <!-- ── Currículo e links ─────────────────────────────────── -->
+            <h3 class="form-section-heading">Currículo e links</h3>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Currículo
+                    {% if profile.profile_cv %}
+                        <span class="optional-label">(novo arquivo substitui o atual)</span>
+                    {% else %}
+                        <span class="optional-label">(opcional)</span>
+                    {% endif %}
+                </label>
+                {% if profile.profile_cv %}
+                <div class="current-cv-row">
+                    <a href="{{ profile.profile_cv.url }}" target="_blank" rel="noopener" class="current-cv-link">
+                        <i class="fa-solid fa-file-lines me-1"></i> Currículo atual
+                    </a>
+                </div>
+                {% endif %}
+                <label class="file-upload-label" id="cvUploadLabel">
+                    <i class="fa-solid fa-cloud-arrow-up me-2" id="cvUploadIcon"></i>
+                    <span id="cvFileName">Selecionar arquivo…</span>
+                    <input
+                        type="file"
+                        name="profile_cv"
+                        id="profileCvInput"
+                        accept=".pdf,.doc,.docx"
+                        class="file-upload-input"
+                    >
+                </label>
+                <p class="field-hint">PDF, DOC ou DOCX — máximo 5 MB.</p>
+                {% if errors.profile_cv %}<p class="input-error">{{ errors.profile_cv }}</p>{% endif %}
+            </div>
+
+            <!-- ── Links ────────────────────────────────────────────── -->
+
+            <div class="form-section">
+                <label class="form-label">
+                    LinkedIn <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="linkedin_url"
+                    class="email-input"
+                    placeholder="https://linkedin.com/in/seu-perfil"
+                    value="{{ form_data.linkedin_url|default:profile.linkedin_url }}"
+                >
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    GitHub <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="github_url"
+                    class="email-input"
+                    placeholder="https://github.com/seu-usuario"
+                    value="{{ form_data.github_url|default:profile.github_url }}"
+                >
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-black">Salvar alterações</button>
+                <a href="{% url 'profile_candidate' %}" class="btn btn-gray">Cancelar</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/skills.js' %}"></script>
+<script>
+// CV file name display
+document.getElementById('profileCvInput').addEventListener('change', function() {
+    if (this.files[0]) {
+        document.getElementById('cvFileName').textContent = this.files[0].name;
+        document.getElementById('cvUploadIcon').className = 'fa-solid fa-circle-check me-2';
+        document.getElementById('cvUploadLabel').style.backgroundColor = '#d4edda';
+        document.getElementById('cvUploadLabel').style.color = '#155724';
+    }
+});
+
+// Visibility pill toggles
+function initVisibilityPills(pillsContainerId, hiddenInputId) {
+    var container = document.getElementById(pillsContainerId);
+    var hiddenInput = document.getElementById(hiddenInputId);
+    if (!container || !hiddenInput) return;
+
+    var hidden = new Set(
+        hiddenInput.value.split(',').map(function(s) { return s.trim(); }).filter(Boolean)
+    );
+
+    container.querySelectorAll('.visibility-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            var skill = pill.dataset.skill;
+            var icon = pill.querySelector('.vis-icon');
+
+            if (hidden.has(skill)) {
+                hidden.delete(skill);
+                pill.classList.remove('visibility-hidden');
+                icon.className = 'fa-regular fa-eye vis-icon';
+                pill.title = 'Visível — clique para ocultar';
+            } else {
+                hidden.add(skill);
+                pill.classList.add('visibility-hidden');
+                icon.className = 'fa-regular fa-eye-slash vis-icon';
+                pill.title = 'Oculto — clique para exibir';
+            }
+
+            hiddenInput.value = Array.from(hidden).join(', ');
+        });
+    });
+}
+
+initVisibilityPills('softVisibilityPills', 'hiddenSoftSkillsInput');
+initVisibilityPills('hardVisibilityPills', 'hiddenHardSkillsInput');
+</script>
+{% endblock %}

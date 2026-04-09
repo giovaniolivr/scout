@@ -29,6 +29,8 @@
                             <i class="fa-solid fa-location-dot"></i> {{ job.location }}
                             &nbsp;·&nbsp;
                             {{ job.get_job_type_display }}
+                            {% if job.job_area %}&nbsp;·&nbsp;{{ job.get_job_area_display }}{% endif %}
+                            {% if job.seniority %}&nbsp;·&nbsp;{{ job.get_seniority_display }}{% endif %}
                             &nbsp;·&nbsp;
                             Publicada em {{ job.created_at|date:"d/m/Y" }}
                         </p>

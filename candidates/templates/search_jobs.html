@@ -35,13 +35,19 @@
                     <option value="{{ value }}" {% if job_type == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
+            <select name="area" class="email-input search-select">
+                <option value="">Área de atuação</option>
+                {% for value, label in job_areas %}
+                    <option value="{{ value }}" {% if area == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
             <button type="submit" class="btn btn-black search-btn">Buscar</button>
         </div>
     </form>
 
     <!-- Results -->
     {% if jobs %}
-        <p class="results-count">{{ jobs.count }} vaga{{ jobs.count|pluralize }} encontrada{{ jobs.count|pluralize }}</p>
+        <p class="results-count">{{ jobs|length }} vaga{{ jobs|length|pluralize }} encontrada{{ jobs|length|pluralize }}</p>
         <div class="jobs-list">
             {% for job in jobs %}
             <div class="job-card">
@@ -67,7 +73,11 @@
                         {% endif %}
                     </div>
                 </div>
-                <p class="job-card-location"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</p>
+                <p class="job-card-location">
+                    <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+                    {% if job.job_area %}&nbsp;·&nbsp;{{ job.get_job_area_display }}{% endif %}
+                    {% if job.seniority %}&nbsp;·&nbsp;{{ job.get_seniority_display }}{% endif %}
+                </p>
                 <p class="job-card-description">{{ job.description|truncatechars:160 }}</p>
 
                 {% if job.has_requirements %}
@@ -84,7 +94,7 @@
                 <div class="job-card-footer">
                     <span class="job-card-date">
                         Publicada em {{ job.created_at|date:"d/m/Y" }}
-                        {% if candidate_has_skills and job.has_requirements and job.match_score is not None %}
+                        {% if job.match_score is not None %}
                         &nbsp;·&nbsp;
                         <span class="match-pct-inline {% if job.match_score >= 70 %}match-high{% elif job.match_score >= 40 %}match-mid{% else %}match-low{% endif %}">
                             {{ job.match_score }}% match
@@ -106,7 +116,7 @@
     {% else %}
         <div class="no-results">
             <p>Nenhuma vaga encontrada.</p>
-            {% if query or location or job_type %}
+            {% if query or location or job_type or area %}
                 <a href="{% url 'search_jobs' %}" class="btn btn-gray mt-2">Limpar filtros</a>
             {% endif %}
         </div>

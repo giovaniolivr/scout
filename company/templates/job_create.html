@@ -29,6 +29,28 @@
             </div>
 
             <div class="form-section">
+                <label class="form-label">Área de atuação *</label>
+                <select name="job_area" class="email-input">
+                    <option value="">Selecione uma área…</option>
+                    {% for value, label in job_areas %}
+                        <option value="{{ value }}" {% if form_data.job_area == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors.job_area %}<p class="input-error">{{ errors.job_area }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Nível de senioridade *</label>
+                <select name="seniority" class="email-input">
+                    <option value="">Selecione um nível…</option>
+                    {% for value, label in seniority_levels %}
+                        <option value="{{ value }}" {% if form_data.seniority == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if errors.seniority %}<p class="input-error">{{ errors.seniority }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
                 <label class="form-label">Localização *</label>
                 <input
                     type="text"

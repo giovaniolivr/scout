@@ -64,6 +64,25 @@ There are two distinct scores. They must never be confused or merged.
 - Used internally for ranking, recommendations, and detecting low-quality or inactive accounts
 - Time in the platform matters, but quality matters more: a short-term high-quality user will outrank a long-term low-quality user
 
+## Currently Mocked Features
+
+The following features have full infrastructure in place but are intentionally relaxed for development. Each entry documents what is mocked, where the real code lives, and what to change to activate it.
+
+### CV upload in onboarding (`candidates/views.py` — `onboarding_candidate`)
+- **What is mocked:** CV upload is optional during onboarding. The user sees the upload button and can click it (file turns green), but submitting without a file is allowed.
+- **Infrastructure in place:** `CandidateProfile.profile_cv` FileField, `enctype="multipart/form-data"` on the form, file input with `name="profile_cv"`, extension/size validation, `profile.profile_cv = cv_file` save — all real. If the user does upload a file, it is saved correctly.
+- **To activate for production:** In `onboarding_candidate`, add a required check before the `if cv_file:` block: `if not cv_file: errors['profile_cv'] = 'O envio do currículo é obrigatório.'` Then remove this note.
+
+### Scout Score display
+- **What is mocked:** The score circles on the candidate home page, profile page, and applicant detail page display `—` as a placeholder.
+- **Infrastructure in place:** The two-score architecture (external 0–100 snapshot + internal cumulative) is defined in CLAUDE.md. `experience_rating` and `experience_comment` are collected from candidates after job closure and stored in `JobApplication`. Company-side endorsement models are not yet built.
+- **To activate:** Implement the scoring algorithm, store results on `CandidateProfile`, and replace the `—` in the templates with the real value.
+
+### Skill endorsements / company ratings
+- **What is mocked:** Companies cannot yet rate candidate skills. The skill visibility toggle infrastructure (show/hide per skill) is built and functional.
+- **Infrastructure in place:** `CandidateProfile.hidden_soft_skills` / `hidden_hard_skills` fields, visibility helpers (`get_visible_*_skills_list`), toggle UI in edit profile.
+- **To activate:** Add a `SkillEndorsement` model (candidate, company, job_application, skill_name, created_at), a view for companies to submit endorsements from the applicant detail page, and update the profile page to show endorsement counts/badges on skill tags.
+
 ## Code Quality
 
 - No shortcuts that would need to be undone later — do it right the first time for platform code.

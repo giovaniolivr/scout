@@ -1,0 +1,485 @@
+/* ===========================
+   ONBOARDING
+=========================== */
+
+.onboarding-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 1rem 4rem;
+    width: 100%;
+}
+
+.onboarding-inner {
+    width: 100%;
+    max-width: 640px;
+    text-align: left;
+}
+
+.onboarding-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.onboarding-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.5rem;
+}
+
+.onboarding-subtitle {
+    color: #555;
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* Step indicator */
+.onboarding-step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+
+.step {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background-color: #e0e0e0;
+    color: #777;
+}
+
+.step.done {
+    background-color: #111;
+    color: #fff;
+}
+
+.step.active {
+    background-color: #111;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.12);
+}
+
+.step-line {
+    width: 48px;
+    height: 2px;
+    background-color: #111;
+}
+
+/* ===========================
+   PROFILE PAGE
+=========================== */
+
+.profile-page {
+    padding: 2rem;
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Header card */
+.profile-header-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.profile-avatar-lg {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    border-radius: 50%;
+    background-color: #111;
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 1px;
+}
+
+.profile-identity {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.15rem;
+}
+
+.profile-role {
+    color: #444;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.profile-meta-item {
+    font-size: 0.88rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.profile-meta-link {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.profile-meta-link:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+.profile-edit-btn {
+    margin-left: auto;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+
+/* Body grid */
+.profile-body-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 767px) {
+    .profile-body-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-edit-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Sidebar */
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.profile-score-card {
+    text-align: center;
+}
+
+.profile-info-card {
+    padding: 1rem 1.25rem;
+}
+
+.profile-info-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #777;
+    margin-bottom: 0.35rem;
+}
+
+.profile-info-value {
+    font-size: 0.95rem;
+    color: #111;
+    margin: 0;
+}
+
+/* Main content */
+.profile-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.profile-section-card {
+    padding: 1.5rem;
+}
+
+.profile-bio {
+    color: #333;
+    line-height: 1.65;
+    white-space: pre-line;
+    margin: 0;
+}
+
+.profile-empty-hint {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.profile-empty-hint a {
+    color: #333;
+    text-decoration: underline;
+}
+
+/* ===========================
+   EDIT PROFILE FORM
+=========================== */
+
+.form-section-heading {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #111;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #d9d9d9;
+}
+
+.profile-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* File upload */
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #e0e0e0;
+    color: #333;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.file-upload-label:hover {
+    background-color: #d4d4d4;
+}
+
+.file-upload-input {
+    display: none;
+}
+
+.current-cv-row {
+    margin-bottom: 0.75rem;
+}
+
+.current-cv-link {
+    color: #333;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+.current-cv-link:hover {
+    color: #000;
+}
+
+/* ===========================
+   VISIBILITY PILLS
+=========================== */
+
+.visibility-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.visibility-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #bbb;
+    background-color: #111;
+    color: #fff;
+    transition: background-color 0.15s, opacity 0.15s;
+}
+
+.visibility-pill:hover {
+    background-color: #333;
+}
+
+.visibility-pill.visibility-hidden {
+    background-color: #e0e0e0;
+    color: #777;
+    border-color: #ccc;
+    text-decoration: line-through;
+    text-decoration-color: #aaa;
+    opacity: 0.7;
+}
+
+.visibility-pill.visibility-hidden:hover {
+    opacity: 1;
+}
+
+.vis-icon {
+    font-size: 0.8rem;
+}
+
+/* ===========================
+   SHARED — form label + hint
+=========================== */
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.92rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.field-hint {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.3rem;
+    margin-bottom: 0;
+}
+
+.optional-label {
+    font-size: 0.8rem;
+    color: #888;
+    font-weight: 400;
+}
+
+.form-section {
+    margin-bottom: 1.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.form-actions .btn {
+    min-width: 160px;
+    width: auto;
+}
+
+/* Skill tag input widget (already in company.css; redeclare so profile forms work) */
+.skill-tag-input {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    min-height: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: text;
+    position: relative;
+}
+
+.skill-tags-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.skill-search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+    color: #111;
+    min-width: 140px;
+    flex: 1;
+    padding: 0.2rem 0;
+}
+
+.skill-input-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.skill-tag-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+}
+
+.skill-tag-remove:hover {
+    opacity: 1;
+}
+
+.skill-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.skill-dropdown-item {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #111;
+}
+
+.skill-dropdown-item:hover {
+    background-color: #f2f2f2;
+}
+
+.skill-dropdown-empty {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.skills-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+    .skills-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}

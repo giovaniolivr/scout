@@ -95,7 +95,10 @@
                     </div>
                     <h4 class="recommended-card-title">{{ job.title }}</h4>
                     <p class="recommended-card-company">{{ job.company.company_name }}</p>
-                    <p class="recommended-card-location"><i class="fa-solid fa-location-dot"></i> {{ job.location }}</p>
+                    <p class="recommended-card-location">
+                        <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+                        {% if job.job_area %}&nbsp;·&nbsp;{{ job.get_job_area_display }}{% endif %}
+                    </p>
                     <div class="recommended-card-footer">
                         {% if job.external_url %}
                             <form method="post" action="{% url 'apply_external' job.id %}">

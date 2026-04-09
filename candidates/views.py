@@ -4,12 +4,20 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 
 from company.models import Job
-from .models import JobApplication
+from core.skills import filter_hard_skills, filter_soft_skills, SOFT_SKILL_CATEGORIES
+from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES
+from .models import CandidateProfile, JobApplication
 
 
 def _require_candidate(request):
+    """
+    Returns a redirect if the user is not a candidate or has not completed onboarding.
+    Returns None when the request is allowed to proceed.
+    """
     if not request.user.is_authenticated or not hasattr(request.user, 'candidate_profile'):
         return redirect('home')
+    if not request.user.candidate_profile.is_onboarded:
+        return redirect('onboarding_candidate')
     return None
 
 
@@ -32,6 +40,211 @@ def _rank_jobs_for_candidate(jobs_qs, candidate_profile):
     return jobs
 
 
+# ---------------------------------------------------------------------------
+# ONBOARDING — mandatory first-time profile setup after registration
+# ---------------------------------------------------------------------------
+
+EDUCATION_CHOICES = CandidateProfile.EDUCATION_CHOICES
+VALID_EDUCATION_VALUES = {v for v, _ in EDUCATION_CHOICES}
+
+_ONBOARDING_CTX = {
+    'education_choices': EDUCATION_CHOICES,
+    'job_areas': JOB_AREAS,
+    'seniority_levels': SENIORITY_LEVELS,
+    'onboarding_mode': True,
+}
+
+CV_ALLOWED_EXTENSIONS = ('.pdf', '.doc', '.docx')
+CV_MAX_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
+def onboarding_candidate(request):
+    """
+    The mandatory first-time profile setup screen.
+    Shown after registration, before the candidate can access any other page.
+    """
+    if not request.user.is_authenticated or not hasattr(request.user, 'candidate_profile'):
+        return redirect('home')
+
+    profile = request.user.candidate_profile
+
+    if profile.is_onboarded:
+        return redirect('home_candidate')
+
+    if request.method == 'POST':
+        bio = request.POST.get('bio', '').strip()
+        desired_area = request.POST.get('desired_area', '').strip()
+        desired_seniority = request.POST.get('desired_seniority', '').strip()
+        education_level = request.POST.get('education_level', '').strip()
+        soft_skills = filter_soft_skills(request.POST.get('soft_skills', ''))
+        hard_skills = filter_hard_skills(request.POST.get('hard_skills', ''))
+        linkedin_url = request.POST.get('linkedin_url', '').strip()
+        # MOCK: CV is optional during onboarding — saved if provided, skipped if not.
+        # To enforce for production: add a required check here and remove this comment.
+        cv_file = request.FILES.get('profile_cv')
+
+        errors = {}
+
+        if not bio or len(bio) < 20:
+            errors['bio'] = 'Escreva ao menos 20 caracteres sobre você.'
+        if desired_area not in VALID_JOB_AREAS:
+            errors['desired_area'] = 'Selecione uma área de atuação.'
+        if desired_seniority not in VALID_SENIORITIES:
+            errors['desired_seniority'] = 'Selecione um nível de senioridade.'
+        if education_level not in VALID_EDUCATION_VALUES:
+            errors['education_level'] = 'Selecione seu nível de escolaridade.'
+        if not soft_skills:
+            errors['soft_skills'] = 'Adicione ao menos uma habilidade comportamental.'
+
+        if linkedin_url and not linkedin_url.startswith(('http://', 'https://')):
+            linkedin_url = 'https://' + linkedin_url
+
+        if cv_file:
+            ext = f".{cv_file.name.rsplit('.', 1)[-1].lower()}"
+            if ext not in CV_ALLOWED_EXTENSIONS:
+                errors['profile_cv'] = 'Formato inválido. Envie um arquivo PDF, DOC ou DOCX.'
+            elif cv_file.size > CV_MAX_SIZE:
+                errors['profile_cv'] = 'Arquivo muito grande. O tamanho máximo é 5 MB.'
+
+        if errors:
+            return render(request, 'onboarding_candidate.html', {
+                'errors': errors,
+                'form_data': request.POST,
+                'education_choices': EDUCATION_CHOICES,
+                'job_areas': JOB_AREAS,
+                'seniority_levels': SENIORITY_LEVELS,
+                'onboarding_mode': True,
+            })
+
+        profile.bio = bio
+        profile.desired_area = desired_area
+        profile.desired_seniority = desired_seniority
+        profile.education_level = education_level
+        profile.soft_skills = soft_skills
+        profile.hard_skills = hard_skills
+        profile.linkedin_url = linkedin_url
+        if cv_file:
+            profile.profile_cv = cv_file
+        profile.is_onboarded = True
+        profile.save()
+
+        messages.success(request, 'Perfil configurado! Bem-vindo ao Scout.')
+        return redirect('home_candidate')
+
+    return render(request, 'onboarding_candidate.html', {
+        'education_choices': EDUCATION_CHOICES,
+        'job_areas': JOB_AREAS,
+        'seniority_levels': SENIORITY_LEVELS,
+        'onboarding_mode': True,
+    })
+
+
+# ---------------------------------------------------------------------------
+# PROFILE — view and edit
+# ---------------------------------------------------------------------------
+
+@login_required
+def profile_candidate(request):
+    redir = _require_candidate(request)
+    if redir:
+        return redir
+    profile = request.user.candidate_profile
+    return render(request, 'profile_candidate.html', {'profile': profile})
+
+
+@login_required
+def edit_profile_candidate(request):
+    redir = _require_candidate(request)
+    if redir:
+        return redir
+
+    profile = request.user.candidate_profile
+
+    if request.method == 'POST':
+        bio = request.POST.get('bio', '').strip()
+        desired_area = request.POST.get('desired_area', '').strip()
+        desired_seniority = request.POST.get('desired_seniority', '').strip()
+        education_level = request.POST.get('education_level', '').strip()
+        soft_skills = filter_soft_skills(request.POST.get('soft_skills', ''))
+        hard_skills = filter_hard_skills(request.POST.get('hard_skills', ''))
+        linkedin_url = request.POST.get('linkedin_url', '').strip()
+        github_url = request.POST.get('github_url', '').strip()
+        cv_file = request.FILES.get('profile_cv')
+
+        # Visibility — ensure hidden is a strict subset of the selected skills
+        hidden_soft_raw = filter_soft_skills(request.POST.get('hidden_soft_skills', ''))
+        hidden_hard_raw = filter_hard_skills(request.POST.get('hidden_hard_skills', ''))
+        soft_set = {s.strip() for s in soft_skills.split(',') if s.strip()}
+        hard_set = {s.strip() for s in hard_skills.split(',') if s.strip()}
+        hidden_soft_set = {s.strip() for s in hidden_soft_raw.split(',') if s.strip()}
+        hidden_hard_set = {s.strip() for s in hidden_hard_raw.split(',') if s.strip()}
+        final_hidden_soft = ', '.join(sorted(hidden_soft_set & soft_set))
+        final_hidden_hard = ', '.join(sorted(hidden_hard_set & hard_set))
+
+        errors = {}
+
+        if not bio or len(bio) < 20:
+            errors['bio'] = 'Escreva ao menos 20 caracteres sobre você.'
+        if desired_area not in VALID_JOB_AREAS:
+            errors['desired_area'] = 'Selecione uma área de atuação.'
+        if desired_seniority not in VALID_SENIORITIES:
+            errors['desired_seniority'] = 'Selecione um nível de senioridade.'
+        if education_level not in VALID_EDUCATION_VALUES:
+            errors['education_level'] = 'Selecione seu nível de escolaridade.'
+        if not soft_skills:
+            errors['soft_skills'] = 'Adicione ao menos uma habilidade comportamental.'
+
+        if linkedin_url and not linkedin_url.startswith(('http://', 'https://')):
+            linkedin_url = 'https://' + linkedin_url
+        if github_url and not github_url.startswith(('http://', 'https://')):
+            github_url = 'https://' + github_url
+
+        if cv_file:
+            ext = f".{cv_file.name.rsplit('.', 1)[-1].lower()}"
+            if ext not in CV_ALLOWED_EXTENSIONS:
+                errors['profile_cv'] = 'Formato inválido. Envie um arquivo PDF, DOC ou DOCX.'
+            elif cv_file.size > CV_MAX_SIZE:
+                errors['profile_cv'] = 'Arquivo muito grande. O tamanho máximo é 5 MB.'
+
+        if errors:
+            return render(request, 'edit_profile_candidate.html', {
+                'profile': profile,
+                'errors': errors,
+                'form_data': request.POST,
+                'education_choices': EDUCATION_CHOICES,
+                'job_areas': JOB_AREAS,
+                'seniority_levels': SENIORITY_LEVELS,
+            })
+
+        profile.bio = bio
+        profile.desired_area = desired_area
+        profile.desired_seniority = desired_seniority
+        profile.education_level = education_level
+        profile.soft_skills = soft_skills
+        profile.hard_skills = hard_skills
+        profile.hidden_soft_skills = final_hidden_soft
+        profile.hidden_hard_skills = final_hidden_hard
+        profile.linkedin_url = linkedin_url
+        profile.github_url = github_url
+        if cv_file:
+            profile.profile_cv = cv_file
+        profile.save()
+
+        messages.success(request, 'Perfil atualizado com sucesso.')
+        return redirect('profile_candidate')
+
+    return render(request, 'edit_profile_candidate.html', {
+        'profile': profile,
+        'education_choices': EDUCATION_CHOICES,
+        'job_areas': JOB_AREAS,
+        'seniority_levels': SENIORITY_LEVELS,
+    })
+
+
+# ---------------------------------------------------------------------------
+# HOME
+# ---------------------------------------------------------------------------
+
 @login_required
 def home_candidate(request):
     redir = _require_candidate(request)
@@ -44,17 +257,13 @@ def home_candidate(request):
         JobApplication.objects.filter(candidate=profile).values_list('job_id', flat=True)
     )
 
-    # ----------------------------------------------------------------
-    # ALGORITHM HOOK — replace this queryset with the ranking algorithm
-    # when it's ready. The home page always renders the first 3 results.
-    # ----------------------------------------------------------------
     recent_applications = (
         JobApplication.objects
-        .filter(candidate=profile)
+        .filter(candidate=profile, is_archived=False)
         .select_related('job', 'job__company')
         .order_by('-applied_at')[:3]
     )
-    total_applications = JobApplication.objects.filter(candidate=profile).count()
+    total_applications = JobApplication.objects.filter(candidate=profile, is_archived=False).count()
 
     open_jobs = (
         Job.objects
@@ -64,8 +273,6 @@ def home_candidate(request):
         .order_by('-created_at')
     )
 
-    # RECOMMENDATION HOOK — when the candidate has skills set, score and sort
-    # jobs by match. Falls back to recency ordering when no skills are on file.
     recommended_jobs = _rank_jobs_for_candidate(open_jobs, profile)[:3]
 
     return render(request, 'home_candidate.html', {
@@ -84,7 +291,7 @@ def all_applications(request):
     profile = request.user.candidate_profile
     applications = (
         JobApplication.objects
-        .filter(candidate=profile)
+        .filter(candidate=profile, is_archived=False)
         .select_related('job', 'job__company')
         .order_by('-applied_at')
     )
@@ -101,6 +308,7 @@ def search_jobs(request):
     query = request.GET.get('q', '').strip()
     location = request.GET.get('location', '').strip()
     job_type = request.GET.get('type', '').strip()
+    area = request.GET.get('area', '').strip()
 
     jobs = Job.objects.filter(status=Job.STATUS_OPEN).select_related('company').order_by('-created_at')
 
@@ -110,6 +318,8 @@ def search_jobs(request):
         jobs = jobs.filter(location__icontains=location)
     if job_type:
         jobs = jobs.filter(job_type=job_type)
+    if area and area in VALID_JOB_AREAS:
+        jobs = jobs.filter(job_area=area)
 
     profile = request.user.candidate_profile
     applied_ids = set(
@@ -117,7 +327,6 @@ def search_jobs(request):
     )
     jobs = jobs.exclude(id__in=applied_ids)
 
-    # Rank by skill match when the candidate has skills on file
     jobs = _rank_jobs_for_candidate(jobs, profile)
 
     return render(request, 'search_jobs.html', {
@@ -125,7 +334,9 @@ def search_jobs(request):
         'query': query,
         'location': location,
         'job_type': job_type,
+        'area': area,
         'type_choices': Job.TYPE_CHOICES,
+        'job_areas': JOB_AREAS,
         'candidate_has_skills': profile.has_skills(),
     })
 
@@ -216,7 +427,7 @@ def application_detail(request, application_id):
         return redir
 
     profile = request.user.candidate_profile
-    application = get_object_or_404(JobApplication, pk=application_id, candidate=profile)
+    application = get_object_or_404(JobApplication, pk=application_id, candidate=profile, is_archived=False)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -237,10 +448,9 @@ def application_detail(request, application_id):
 
             application.experience_rating = int(rating)
             application.experience_comment = comment
+            application.is_archived = True
             application.save()
 
-            # Cycle complete — remove from home
-            application.delete()
             messages.success(request, 'Avaliação enviada. Obrigado pelo feedback!')
             return redirect('home_candidate')
 

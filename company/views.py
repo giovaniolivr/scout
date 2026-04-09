@@ -7,6 +7,7 @@ from django.db.models import Count
 from company.models import CompanyProfile, Job
 from candidates.models import CandidateProfile, JobApplication
 from core.skills import filter_hard_skills, filter_soft_skills, HARD_SKILLS, SOFT_SKILL_CATEGORIES
+from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES
 
 
 def _require_company(request):
@@ -77,8 +78,9 @@ def job_create(request):
         description = request.POST.get('description', '').strip()
         location = request.POST.get('location', '').strip()
         job_type = request.POST.get('job_type', '')
+        job_area = request.POST.get('job_area', '')
+        seniority = request.POST.get('seniority', '')
         external_url = request.POST.get('external_url', '').strip()
-        # Filter to canonical values only — strips anything not in skills.py
         required_hard_skills = filter_hard_skills(request.POST.get('required_hard_skills', ''))
         required_soft_skills = filter_soft_skills(request.POST.get('required_soft_skills', ''))
 
@@ -96,12 +98,18 @@ def job_create(request):
             errors['location'] = 'Localização muito longa (máximo 100 caracteres).'
         if job_type not in [Job.TYPE_FULL_TIME, Job.TYPE_PART_TIME, Job.TYPE_INTERNSHIP]:
             errors['job_type'] = 'Selecione um tipo de vaga válido.'
+        if job_area not in VALID_JOB_AREAS:
+            errors['job_area'] = 'Selecione uma área válida.'
+        if seniority not in VALID_SENIORITIES:
+            errors['seniority'] = 'Selecione um nível válido.'
 
         if errors:
             return render(request, 'job_create.html', {
                 'errors': errors,
                 'form_data': request.POST,
                 'type_choices': Job.TYPE_CHOICES,
+                'job_areas': JOB_AREAS,
+                'seniority_levels': SENIORITY_LEVELS,
                 'soft_skill_categories': SOFT_SKILL_CATEGORIES,
             })
 
@@ -111,6 +119,8 @@ def job_create(request):
             description=description,
             location=location,
             job_type=job_type,
+            job_area=job_area,
+            seniority=seniority,
             external_url=external_url,
             required_hard_skills=required_hard_skills,
             required_soft_skills=required_soft_skills,
@@ -122,6 +132,8 @@ def job_create(request):
 
     return render(request, 'job_create.html', {
         'type_choices': Job.TYPE_CHOICES,
+        'job_areas': JOB_AREAS,
+        'seniority_levels': SENIORITY_LEVELS,
         'soft_skill_categories': SOFT_SKILL_CATEGORIES,
     })
 
