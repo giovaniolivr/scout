@@ -244,7 +244,7 @@ def candidate_list(request):
 
     search = request.GET.get('q', '').strip()
 
-    candidates = CandidateProfile.objects.select_related('user').order_by('user__first_name')
+    candidates = CandidateProfile.objects.filter(is_onboarded=True).select_related('user').order_by('user__first_name')
 
     if search:
         candidates = candidates.filter(
@@ -256,7 +256,7 @@ def candidate_list(request):
         ) | candidates.filter(
             soft_skills__icontains=search
         )
-        candidates = candidates.select_related('user').order_by('user__first_name')
+        candidates = candidates.filter(is_onboarded=True).select_related('user').order_by('user__first_name')
 
     return render(request, 'candidate_list.html', {
         'candidates': candidates,
@@ -283,6 +283,7 @@ def recommendations(request):
     # ordered by total application count as a proxy for engagement/experience.
     candidates = (
         CandidateProfile.objects
+        .filter(is_onboarded=True)
         .exclude(id__in=already_applied_ids)
         .select_related('user')
         .annotate(application_count=Count('applications'))

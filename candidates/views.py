@@ -433,7 +433,8 @@ def application_detail(request, application_id):
         action = request.POST.get('action')
 
         if action == 'hide':
-            application.delete()
+            application.is_archived = True
+            application.save()
             return redirect('home_candidate')
 
         if action == 'rate' and application.job.status != Job.STATUS_OPEN and application.experience_rating is None:

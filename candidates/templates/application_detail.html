@@ -43,35 +43,45 @@
             <p class="job-detail-description">{{ application.message }}</p>
         {% endif %}
 
-        <!-- Rating — only when job is closed -->
+        <!-- Rating — only when job is closed and not yet rated -->
         {% if application.job.status != 'open' %}
             <hr class="detail-divider">
-            <h4 class="detail-section-title">Como foi sua experiência?</h4>
-            <p class="dashboard-subtitle">A vaga foi encerrada. Avalie o processo e ela será removida da sua lista.</p>
+            {% if application.experience_rating is None %}
+                <h4 class="detail-section-title">Como foi sua experiência?</h4>
+                <p class="dashboard-subtitle">A vaga foi encerrada. Avalie o processo e ela será arquivada.</p>
 
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="rate">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="rate">
 
-                <div class="star-rating-group">
-                    {% for i in "54321" %}
-                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
-                    <label for="star{{ i }}"><i class="fa-solid fa-star"></i></label>
-                    {% endfor %}
-                </div>
-                {% if rating_error %}
-                    <p class="input-error">{{ rating_error }}</p>
-                {% endif %}
+                    <div class="star-rating-group">
+                        {% for i in "54321" %}
+                        <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                        <label for="star{{ i }}"><i class="fa-solid fa-star"></i></label>
+                        {% endfor %}
+                    </div>
+                    {% if rating_error %}
+                        <p class="input-error">{{ rating_error }}</p>
+                    {% endif %}
 
-                <textarea
-                    name="comment"
-                    class="email-input apply-textarea mt-3"
-                    rows="3"
-                    placeholder="A empresa entrou em contato? Como foi o processo? (opcional)"
-                ></textarea>
+                    <textarea
+                        name="comment"
+                        class="email-input apply-textarea mt-3"
+                        rows="3"
+                        placeholder="A empresa entrou em contato? Como foi o processo? (opcional)"
+                    ></textarea>
 
-                <button type="submit" class="btn btn-black w-100 mt-2">Enviar avaliação</button>
-            </form>
+                    <button type="submit" class="btn btn-black w-100 mt-2">Enviar avaliação</button>
+                </form>
+            {% else %}
+                <h4 class="detail-section-title">Sua avaliação</h4>
+                <p class="dashboard-subtitle">
+                    Você avaliou esta experiência com {{ application.experience_rating }} estrela{{ application.experience_rating|pluralize }}.
+                    {% if application.experience_comment %}
+                        <br>{{ application.experience_comment }}
+                    {% endif %}
+                </p>
+            {% endif %}
         {% endif %}
 
         <!-- Hide button -->
