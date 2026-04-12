@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <!-- Header card -->
+    <div class="profile-header-card dashboard-card">
+        <div class="profile-avatar-lg">
+            {{ company.company_name|first|upper }}
+        </div>
+        <div class="profile-identity">
+            <h2 class="profile-name">{{ company.company_name }}</h2>
+            {% if company.bio %}
+                <p class="profile-role">{{ company.bio }}</p>
+            {% endif %}
+            <div class="profile-meta-row">
+                {% if company.city %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ company.city }}{% if company.district %}, {{ company.district }}{% endif %}
+                </span>
+                {% endif %}
+                {% if company.sector %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-building"></i> {{ company.sector }}
+                </span>
+                {% endif %}
+                {% if company.company_size %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-users"></i> {{ company.get_company_size_display }}
+                </span>
+                {% endif %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-heart"></i> {{ follower_count }}
+                    {{ follower_count|pluralize:"seguidor,seguidores" }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Follow button (candidates only) -->
+        {% if viewer_is_candidate %}
+        <form method="post" action="{% url 'toggle_follow_company' company.id %}" class="ms-auto">
+            {% csrf_token %}
+            {% if is_following %}
+            <button type="submit" class="btn btn-gray profile-edit-btn">
+                <i class="fa-solid fa-bell-slash me-1"></i> Seguindo
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-black profile-edit-btn">
+                <i class="fa-solid fa-bell me-1"></i> Seguir
+            </button>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Body -->
+    <div class="profile-body-grid">
+
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+
+            {% if company.website %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-globe me-1"></i> Site</p>
+                <a href="{{ company.website }}" target="_blank" rel="noopener" class="profile-meta-link profile-info-value">
+                    {{ company.website|truncatechars:40 }}
+                </a>
+            </div>
+            {% endif %}
+
+            {% if company.linkedin_url %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-brands fa-linkedin me-1"></i> LinkedIn</p>
+                <a href="{{ company.linkedin_url }}" target="_blank" rel="noopener" class="profile-meta-link profile-info-value">
+                    Ver perfil
+                </a>
+            </div>
+            {% endif %}
+
+            {% if company.company_size %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-users me-1"></i> Porte</p>
+                <p class="profile-info-value">{{ company.get_company_size_display }}</p>
+            </div>
+            {% endif %}
+
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-briefcase me-1"></i> Vagas abertas</p>
+                <p class="profile-info-value">{{ jobs.count }}</p>
+            </div>
+
+        </aside>
+
+        <!-- Main content -->
+        <section class="profile-main">
+
+            {% if company.description %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Sobre a empresa</h3>
+                <p class="profile-bio">{{ company.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Open jobs -->
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Vagas abertas</h3>
+
+                {% if jobs %}
+                    {% for job in jobs %}
+                    <a href="{% url 'job_detail' job.id %}" class="job-row-link">
+                        <div class="job-item">
+                            <div class="job-item-header">
+                                <h4>{{ job.title }}</h4>
+                            </div>
+                            <p class="job-item-meta">
+                                <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+                                &nbsp;·&nbsp; {{ job.get_job_type_display }}
+                                {% if job.job_area %}&nbsp;·&nbsp;{{ job.get_job_area_display }}{% endif %}
+                                {% if job.seniority %}&nbsp;·&nbsp;{{ job.get_seniority_display }}{% endif %}
+                            </p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-inline">
+                        <p>Nenhuma vaga aberta no momento.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+        </section>
+    </div>
+
+</div>
+{% endblock %}

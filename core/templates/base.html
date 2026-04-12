@@ -54,6 +54,8 @@
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><h6 class="dropdown-header">{{ request.user.company_profile.company_name }}<br><small>{{ request.user.email }}</small></h6></li>
                                     <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'profile_company' %}">Meu perfil</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'edit_profile_company' %}">Editar perfil</a></li>
                                     <li><a class="dropdown-item" href="{% url 'job_list_company' %}">Minhas vagas</a></li>
                                     <li><a class="dropdown-item" href="{% url 'recommendations' %}">Talentos recomendados</a></li>
                                     <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Sair</a></li>

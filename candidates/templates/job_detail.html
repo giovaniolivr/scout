@@ -18,7 +18,9 @@
         <div class="job-detail-header">
             <div>
                 <h2 class="job-detail-title">{{ job.title }}</h2>
-                <p class="job-detail-company">{{ job.company.company_name }}</p>
+                <a href="{% url 'company_public_profile' job.company.id %}" class="job-detail-company">
+                    {{ job.company.company_name }}
+                </a>
             </div>
             <span class="job-type-badge">{{ job.get_job_type_display }}</span>
         </div>

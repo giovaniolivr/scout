@@ -4,10 +4,12 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Count
 
-from company.models import CompanyProfile, Job
+from company.models import CompanyProfile, CompanyFollow, Job
 from candidates.models import CandidateProfile, JobApplication
 from core.skills import filter_hard_skills, filter_soft_skills, HARD_SKILLS, SOFT_SKILL_CATEGORIES
 from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES
+
+VALID_COMPANY_SIZES = [c[0] for c in CompanyProfile.SIZE_CHOICES]
 
 
 def _require_company(request):
@@ -292,3 +294,131 @@ def recommendations(request):
     )
 
     return render(request, 'recommendations.html', {'candidates': candidates})
+
+
+# ---------------------------------------------------------------------------
+# COMPANY PROFILE (own view + edit)
+# ---------------------------------------------------------------------------
+
+@login_required
+def profile_company(request):
+    profile, redir = _require_company(request)
+    if redir:
+        return redir
+
+    jobs = profile.jobs.all().order_by('-created_at')
+    total_applications = JobApplication.objects.filter(job__company=profile).count()
+
+    return render(request, 'profile_company.html', {
+        'profile': profile,
+        'jobs': jobs,
+        'total_applications': total_applications,
+        'size_choices': CompanyProfile.SIZE_CHOICES,
+    })
+
+
+@login_required
+def edit_profile_company(request):
+    profile, redir = _require_company(request)
+    if redir:
+        return redir
+
+    if request.method == 'POST':
+        bio = request.POST.get('bio', '').strip()
+        description = request.POST.get('description', '').strip()
+        website = request.POST.get('website', '').strip()
+        linkedin_url = request.POST.get('linkedin_url', '').strip()
+        sector = request.POST.get('sector', '').strip()
+        company_size = request.POST.get('company_size', '').strip()
+        phone = request.POST.get('phone', '').strip()
+
+        errors = {}
+
+        if bio and len(bio) > 300:
+            errors['bio'] = 'Tagline muito longa (máximo 300 caracteres).'
+        if sector and len(sector) > 100:
+            errors['sector'] = 'Setor muito longo (máximo 100 caracteres).'
+        if company_size and company_size not in VALID_COMPANY_SIZES:
+            errors['company_size'] = 'Selecione um porte válido.'
+        if phone and len(phone) > 20:
+            errors['phone'] = 'Telefone muito longo (máximo 20 caracteres).'
+
+        if website and not website.startswith(('http://', 'https://')):
+            website = 'https://' + website
+        if linkedin_url and not linkedin_url.startswith(('http://', 'https://')):
+            linkedin_url = 'https://' + linkedin_url
+
+        if errors:
+            return render(request, 'edit_profile_company.html', {
+                'profile': profile,
+                'errors': errors,
+                'form_data': request.POST,
+                'size_choices': CompanyProfile.SIZE_CHOICES,
+            })
+
+        profile.bio = bio
+        profile.description = description
+        profile.website = website
+        profile.linkedin_url = linkedin_url
+        profile.sector = sector
+        profile.company_size = company_size
+        if phone:
+            profile.phone = phone
+        profile.save()
+
+        messages.success(request, 'Perfil atualizado com sucesso.')
+        return redirect('profile_company')
+
+    return render(request, 'edit_profile_company.html', {
+        'profile': profile,
+        'size_choices': CompanyProfile.SIZE_CHOICES,
+    })
+
+
+# ---------------------------------------------------------------------------
+# PUBLIC COMPANY PROFILE (visible to candidates)
+# ---------------------------------------------------------------------------
+
+@login_required
+def company_public_profile(request, company_id):
+    company = get_object_or_404(CompanyProfile, id=company_id)
+    jobs = company.jobs.filter(status=Job.STATUS_OPEN).order_by('-created_at')
+
+    # Follow state — only relevant when the viewer is a candidate
+    is_following = False
+    viewer_is_candidate = hasattr(request.user, 'candidate_profile')
+    if viewer_is_candidate:
+        candidate_profile = request.user.candidate_profile
+        is_following = CompanyFollow.objects.filter(
+            candidate=candidate_profile, company=company
+        ).exists()
+
+    return render(request, 'company_public_profile.html', {
+        'company': company,
+        'jobs': jobs,
+        'is_following': is_following,
+        'viewer_is_candidate': viewer_is_candidate,
+        'follower_count': company.get_follower_count(),
+    })
+
+
+@login_required
+@require_POST
+def toggle_follow_company(request, company_id):
+    if not hasattr(request.user, 'candidate_profile'):
+        messages.error(request, 'Apenas candidatos podem seguir empresas.')
+        return redirect('company_public_profile', company_id=company_id)
+
+    company = get_object_or_404(CompanyProfile, id=company_id)
+    candidate_profile = request.user.candidate_profile
+
+    follow, created = CompanyFollow.objects.get_or_create(
+        candidate=candidate_profile, company=company
+    )
+    if not created:
+        follow.delete()
+        messages.success(request, f'Você deixou de seguir {company.company_name}.')
+    else:
+        messages.success(request, f'Você está seguindo {company.company_name}!')
+
+    return redirect('company_public_profile', company_id=company_id)

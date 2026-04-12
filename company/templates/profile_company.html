@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static scout_filters %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <!-- Header card -->
+    <div class="profile-header-card dashboard-card">
+        <div class="profile-avatar-lg">
+            {{ profile.company_name|first|upper }}
+        </div>
+        <div class="profile-identity">
+            <h2 class="profile-name">{{ profile.company_name }}</h2>
+            {% if profile.bio %}
+                <p class="profile-role">{{ profile.bio }}</p>
+            {% endif %}
+            <div class="profile-meta-row">
+                {% if profile.city %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ profile.city }}{% if profile.district %}, {{ profile.district }}{% endif %}
+                </span>
+                {% endif %}
+                {% if profile.sector %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-building"></i> {{ profile.sector }}
+                </span>
+                {% endif %}
+                {% if profile.company_size %}
+                <span class="profile-meta-item">
+                    <i class="fa-solid fa-users"></i> {{ profile.get_company_size_display }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'edit_profile_company' %}" class="btn btn-gray profile-edit-btn">
+            <i class="fa-solid fa-pen me-1"></i> Editar perfil
+        </a>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-number">{{ profile.get_follower_count }}</span>
+            <span class="stat-label">Seguidores</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ jobs.count }}</span>
+            <span class="stat-label">Vagas publicadas</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_applications }}</span>
+            <span class="stat-label">Candidaturas recebidas</span>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="profile-body-grid">
+
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-envelope me-1"></i> E-mail</p>
+                <p class="profile-info-value">{{ profile.user.email }}</p>
+            </div>
+
+            {% if profile.phone %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-phone me-1"></i> Telefone</p>
+                <p class="profile-info-value">{{ profile.phone }}</p>
+            </div>
+            {% endif %}
+
+            {% if profile.website %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-globe me-1"></i> Site</p>
+                <a href="{{ profile.website }}" target="_blank" rel="noopener" class="profile-meta-link profile-info-value">
+                    {{ profile.website|truncatechars:40 }}
+                </a>
+            </div>
+            {% endif %}
+
+            {% if profile.linkedin_url %}
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-brands fa-linkedin me-1"></i> LinkedIn</p>
+                <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="profile-meta-link profile-info-value">
+                    Ver perfil
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="dashboard-card profile-info-card">
+                <p class="profile-info-label"><i class="fa-solid fa-id-card me-1"></i> CNPJ</p>
+                <p class="profile-info-value">{{ profile.cnpj|format_cnpj }}</p>
+            </div>
+
+            {% if not profile.bio and not profile.description and not profile.website %}
+            <div class="dashboard-card profile-info-card" style="border: 1px dashed #bbb; background-color: #f9f9f9;">
+                <p class="profile-info-label">Perfil incompleto</p>
+                <p class="profile-empty-hint">
+                    <a href="{% url 'edit_profile_company' %}">Complete o perfil →</a>
+                </p>
+            </div>
+            {% endif %}
+
+        </aside>
+
+        <!-- Main content -->
+        <section class="profile-main">
+
+            {% if profile.description %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Sobre a empresa</h3>
+                <p class="profile-bio">{{ profile.description }}</p>
+            </div>
+            {% else %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">Sobre a empresa</h3>
+                <p class="profile-empty-hint">
+                    Nenhuma descrição adicionada ainda.
+                    <a href="{% url 'edit_profile_company' %}">Adicionar →</a>
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Jobs list -->
+            <div class="dashboard-card profile-section-card">
+                <div class="panel-header">
+                    <h3 class="panel-title">Vagas publicadas</h3>
+                    <a href="{% url 'job_list_company' %}" class="panel-link">Gerenciar vagas</a>
+                </div>
+
+                {% if jobs %}
+                    {% for job in jobs %}
+                    <a href="{% url 'job_detail_company' job.id %}" class="job-row-link">
+                        <div class="job-item">
+                            <div class="job-item-header">
+                                <h4>{{ job.title }}</h4>
+                                <span class="job-status {{ job.status }}">{{ job.get_status_display }}</span>
+                            </div>
+                            <p class="job-item-meta">
+                                <i class="fa-solid fa-location-dot"></i> {{ job.location }}
+                                {% if job.job_area %}&nbsp;·&nbsp;{{ job.get_job_area_display }}{% endif %}
+                                {% if job.seniority %}&nbsp;·&nbsp;{{ job.get_seniority_display }}{% endif %}
+                                &nbsp;·&nbsp; {{ job.created_at|date:"d/m/Y" }}
+                            </p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state-inline">
+                        <p>Nenhuma vaga publicada ainda.</p>
+                        <a href="{% url 'job_create' %}" class="btn btn-black btn-sm mt-2">Publicar vaga</a>
+                    </div>
+                {% endif %}
+            </div>
+
+        </section>
+    </div>
+
+</div>
+{% endblock %}

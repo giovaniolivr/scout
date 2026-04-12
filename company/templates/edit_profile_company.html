@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="company-form-container">
+    <div class="company-form-inner">
+
+        <div class="page-header">
+            <div>
+                <h2 class="dashboard-title">Editar Perfil</h2>
+                <p class="dashboard-subtitle">Mantenha as informações da sua empresa atualizadas.</p>
+            </div>
+            <a href="{% url 'profile_company' %}" class="btn btn-gray page-header-btn">
+                <i class="fa-solid fa-arrow-left me-1"></i> Ver perfil
+            </a>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- ── Identidade ──────────────────────────────────────────── -->
+            <h3 class="form-section-heading">Identidade da empresa</h3>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Tagline <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="text"
+                    name="bio"
+                    class="email-input"
+                    placeholder="Ex: Conectando talentos ao futuro da tecnologia"
+                    maxlength="300"
+                    value="{{ form_data.bio|default:profile.bio }}"
+                >
+                <p class="field-hint">Uma frase curta que representa a empresa. Máximo 300 caracteres.</p>
+                {% if errors.bio %}<p class="input-error">{{ errors.bio }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Sobre a empresa <span class="optional-label">(opcional)</span>
+                </label>
+                <textarea
+                    name="description"
+                    class="email-input profile-textarea"
+                    placeholder="Descreva sua empresa, cultura, missão e o que a torna especial…"
+                    rows="6"
+                >{{ form_data.description|default:profile.description }}</textarea>
+                <p class="field-hint">Esse texto aparece no seu perfil público e é visto pelos candidatos.</p>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Setor / Indústria <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="text"
+                    name="sector"
+                    class="email-input"
+                    placeholder="Ex: Tecnologia, Saúde, Educação…"
+                    maxlength="100"
+                    value="{{ form_data.sector|default:profile.sector }}"
+                >
+                {% if errors.sector %}<p class="input-error">{{ errors.sector }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Porte da empresa <span class="optional-label">(opcional)</span>
+                </label>
+                <select name="company_size" class="email-input">
+                    <option value="">Selecione…</option>
+                    {% for value, label in size_choices %}
+                        <option value="{{ value }}"
+                            {% if form_data.company_size == value or profile.company_size == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if errors.company_size %}<p class="input-error">{{ errors.company_size }}</p>{% endif %}
+            </div>
+
+            <!-- ── Contato e presença online ───────────────────────────── -->
+            <h3 class="form-section-heading">Contato e presença online</h3>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Telefone <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="tel"
+                    name="phone"
+                    class="email-input"
+                    placeholder="(11) 99999-9999"
+                    maxlength="20"
+                    value="{{ form_data.phone|default:profile.phone }}"
+                >
+                {% if errors.phone %}<p class="input-error">{{ errors.phone }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Site <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="website"
+                    class="email-input"
+                    placeholder="https://suaempresa.com.br"
+                    value="{{ form_data.website|default:profile.website }}"
+                >
+                {% if errors.website %}<p class="input-error">{{ errors.website }}</p>{% endif %}
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    LinkedIn <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="linkedin_url"
+                    class="email-input"
+                    placeholder="https://linkedin.com/company/suaempresa"
+                    value="{{ form_data.linkedin_url|default:profile.linkedin_url }}"
+                >
+                {% if errors.linkedin_url %}<p class="input-error">{{ errors.linkedin_url }}</p>{% endif %}
+            </div>
+
+            <!-- ── Actions ─────────────────────────────────────────────── -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-black">Salvar alterações</button>
+                <a href="{% url 'profile_company' %}" class="btn btn-gray">Cancelar</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

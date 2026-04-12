@@ -4,6 +4,19 @@ from core.roles import JOB_AREAS, SENIORITY_LEVELS, SENIORITY_ORDER
 
 
 class CompanyProfile(models.Model):
+    SIZE_1_10 = '1_10'
+    SIZE_11_50 = '11_50'
+    SIZE_51_200 = '51_200'
+    SIZE_201_500 = '201_500'
+    SIZE_500_PLUS = '500_plus'
+    SIZE_CHOICES = [
+        (SIZE_1_10, '1 – 10 funcionários'),
+        (SIZE_11_50, '11 – 50 funcionários'),
+        (SIZE_51_200, '51 – 200 funcionários'),
+        (SIZE_201_500, '201 – 500 funcionários'),
+        (SIZE_500_PLUS, 'Mais de 500 funcionários'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='company_profile')
     company_name = models.CharField(max_length=200)
     cnpj = models.CharField(max_length=14, unique=True)
@@ -15,8 +28,39 @@ class CompanyProfile(models.Model):
     district = models.CharField(max_length=100)
     street = models.CharField(max_length=200)
 
+    # Profile fields — filled in after signup
+    bio = models.CharField(max_length=300, blank=True, default='')
+    description = models.TextField(blank=True, default='')
+    website = models.URLField(blank=True, default='')
+    linkedin_url = models.URLField(blank=True, default='')
+    sector = models.CharField(max_length=100, blank=True, default='')
+    company_size = models.CharField(max_length=20, choices=SIZE_CHOICES, blank=True, default='')
+
+    def get_follower_count(self):
+        return self.followers.count()
+
     def __str__(self):
         return f"{self.company_name} ({self.user.email})"
+
+
+class CompanyFollow(models.Model):
+    candidate = models.ForeignKey(
+        'candidates.CandidateProfile',
+        on_delete=models.CASCADE,
+        related_name='following',
+    )
+    company = models.ForeignKey(
+        CompanyProfile,
+        on_delete=models.CASCADE,
+        related_name='followers',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('candidate', 'company')
+
+    def __str__(self):
+        return f"{self.candidate} follows {self.company}"
 
 
 class Job(models.Model):
