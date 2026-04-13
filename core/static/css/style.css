@@ -443,6 +443,222 @@ h1, h2, h3, h4, h5 {
 }
 
 /* ===========================
+   INSIGHT ITEMS — shared between candidate and company dashboards
+=========================== */
+
+.insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    border-left: 4px solid transparent;
+    background-color: #fff;
+}
+
+.insight-item--strength {
+    border-left-color: #2d9e5f;
+    background-color: #f2faf6;
+}
+
+.insight-item--opportunity {
+    border-left-color: #d08a00;
+    background-color: #fdf8ee;
+}
+
+.insight-item--tip {
+    border-left-color: #3a7bd5;
+    background-color: #f0f5fd;
+}
+
+.insight-item__icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.insight-item--strength  .insight-item__icon { color: #2d9e5f; }
+.insight-item--opportunity .insight-item__icon { color: #d08a00; }
+.insight-item--tip        .insight-item__icon { color: #3a7bd5; }
+
+.insight-item__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.insight-item__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.insight-item__body {
+    font-size: 0.82rem;
+    color: #555;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Count badge shown in the panel header */
+.insight-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2d9e5f;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 20px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.insight-count-badge--opp {
+    background-color: #d08a00;
+}
+
+/* Compact preview rows shown inside the card ─────────────────────────────── */
+.insight-compact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.insight-compact-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    background-color: #fff;
+}
+
+.insight-compact-row.insight-item--strength {
+    border-left-color: #2d9e5f;
+    background-color: #f2faf6;
+}
+
+.insight-compact-row.insight-item--opportunity {
+    border-left-color: #d08a00;
+    background-color: #fdf8ee;
+}
+
+.insight-compact-row.insight-item--tip {
+    border-left-color: #3a7bd5;
+    background-color: #f0f5fd;
+}
+
+.insight-compact-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.insight-compact-row.insight-item--strength  .insight-compact-icon { color: #2d9e5f; }
+.insight-compact-row.insight-item--opportunity .insight-compact-icon { color: #d08a00; }
+.insight-compact-row.insight-item--tip        .insight-compact-icon { color: #3a7bd5; }
+
+.insight-compact-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #111;
+    line-height: 1.3;
+}
+
+/* Clickable insight card — whole panel opens the modal */
+.insight-card--clickable {
+    cursor: pointer;
+    transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.insight-card--clickable:hover {
+    border-color: #bbb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* "N mais" hint shown when there are more than 3 insights */
+.insight-more-hint {
+    font-size: 0.78rem;
+    color: #999;
+    margin: 0.5rem 0 0;
+    font-style: italic;
+}
+
+/* Insight modal ─────────────────────────────────────────────────────────── */
+.insight-modal-content {
+    background-color: #f7f7f7;
+    border: 1px solid #d9d9d9;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.insight-modal-header {
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f2f2f2;
+    padding: 1.1rem 1.4rem;
+}
+
+.insight-modal-header--strength .modal-title {
+    color: #1a7a3a;
+}
+
+.insight-modal-header--opp .modal-title {
+    color: #8a6500;
+}
+
+.insight-modal-header .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #111;
+}
+
+.insight-modal-body {
+    padding: 1.25rem 1.4rem;
+}
+
+.insight-modal-intro {
+    font-size: 0.88rem;
+    color: #666;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 0.75rem;
+}
+
+/* Empty state shown when there are no insights yet */
+.insight-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.25rem 0.5rem;
+    color: #888;
+    font-size: 0.88rem;
+    gap: 0.5rem;
+}
+
+.insight-empty__icon {
+    font-size: 1.5rem;
+    color: #ccc;
+}
+
+/* ===========================
    BANDEIRA NO CAMPO DE TELEFONE
 =========================== */
 input[placeholder="Telefone"] {

@@ -1,0 +1,10 @@
+{# Single insight item. Include with: {% include 'partials/_insight_item.html' with insight=item %} #}
+<div class="insight-item {{ insight.css_modifier }}">
+    <div class="insight-item__icon">
+        <i class="bi {{ insight.icon }}"></i>
+    </div>
+    <div class="insight-item__text">
+        <p class="insight-item__title">{{ insight.title }}</p>
+        <p class="insight-item__body">{{ insight.body }}</p>
+    </div>
+</div>

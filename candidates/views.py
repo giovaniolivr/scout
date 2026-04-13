@@ -8,6 +8,7 @@ from company.models import Job, CompanyFollow, CompanyQualityEndorsement
 from core.skills import filter_hard_skills, filter_soft_skills, SOFT_SKILL_CATEGORIES
 from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES, LANGUAGES, COMPANY_QUALITIES
 from .models import CandidateProfile, JobApplication
+from .insights import compute_candidate_insights
 
 
 def _require_candidate(request):
@@ -290,10 +291,15 @@ def home_candidate(request):
 
     recommended_jobs = _rank_jobs_for_candidate(open_jobs, profile)[:3]
 
+    strengths, opportunities = compute_candidate_insights(profile)
+
     return render(request, 'home_candidate.html', {
+        'profile': profile,
         'recent_applications': recent_applications,
         'total_applications': total_applications,
         'recommended_jobs': recommended_jobs,
+        'insight_strengths': strengths,
+        'insight_opportunities': opportunities,
     })
 
 

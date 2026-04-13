@@ -4,7 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=7">
 <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
-<link rel="stylesheet" href="{% static 'css/home_candidate.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/home_candidate.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
@@ -63,10 +63,17 @@
         <!-- Score -->
         <section class="dashboard-card score-card">
             <h3 class="panel-title">Scout Score</h3>
+            {% if profile.scout_score is not None %}
+            <div class="score-circle score-circle--filled">
+                <span>{{ profile.scout_score }}</span>
+            </div>
+            <p class="score-description">Atualizado com base nos feedbacks recebidos.</p>
+            {% else %}
             <div class="score-circle">
                 <span>—</span>
             </div>
             <p class="score-description">Calculado após os primeiros feedbacks das empresas.</p>
+            {% endif %}
         </section>
 
     </div>
@@ -117,26 +124,125 @@
         {% endif %}
     </section>
 
-    <!-- Row 3: Insight panels (algorithm-ready placeholders) -->
+    <!-- Row 3: Insights -->
     <div class="insights-grid">
 
-        <section class="dashboard-card insight-card">
-            <h3 class="panel-title">Onde você está indo bem</h3>
-            <div class="insight-placeholder">
-                <i class="fa-solid fa-chart-line insight-icon"></i>
-                <p>Disponível após receber feedbacks das empresas e completar seu perfil.</p>
+        <!-- Strengths card -->
+        <section class="dashboard-card insight-card {% if insight_strengths %}insight-card--clickable{% endif %}"
+                 {% if insight_strengths %}data-bs-toggle="modal" data-bs-target="#strengthsModal"{% endif %}>
+            <div class="panel-header">
+                <h3 class="panel-title">
+                    <i class="bi bi-graph-up-arrow"></i> Onde você está indo bem
+                </h3>
+                {% if insight_strengths %}
+                    <span class="insight-count-badge">{{ insight_strengths|length }}</span>
+                {% endif %}
             </div>
+            {% if insight_strengths %}
+                <div class="insight-compact-list">
+                    {% for item in insight_strengths|slice:":3" %}
+                    <div class="insight-compact-row {{ item.css_modifier }}">
+                        <i class="bi {{ item.icon }} insight-compact-icon"></i>
+                        <span class="insight-compact-title">{{ item.title }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if insight_strengths|length > 3 %}
+                <p class="insight-more-hint">+{{ insight_strengths|length|add:"-3" }} mais — clique para ver tudo</p>
+                {% endif %}
+            {% else %}
+                <div class="insight-empty">
+                    <i class="bi bi-hourglass insight-empty__icon"></i>
+                    <p>Disponível após receber feedbacks das empresas.</p>
+                </div>
+            {% endif %}
         </section>
 
-        <section class="dashboard-card insight-card">
-            <h3 class="panel-title">O que você pode melhorar</h3>
-            <div class="insight-placeholder">
-                <i class="fa-solid fa-bullseye insight-icon"></i>
-                <p>Disponível após receber feedbacks das empresas e completar seu perfil.</p>
+        <!-- Opportunities card -->
+        <section class="dashboard-card insight-card {% if insight_opportunities %}insight-card--clickable{% endif %}"
+                 {% if insight_opportunities %}data-bs-toggle="modal" data-bs-target="#opportunitiesModal"{% endif %}>
+            <div class="panel-header">
+                <h3 class="panel-title">
+                    <i class="bi bi-bullseye"></i> O que você pode melhorar
+                </h3>
+                {% if insight_opportunities %}
+                    <span class="insight-count-badge insight-count-badge--opp">{{ insight_opportunities|length }}</span>
+                {% endif %}
             </div>
+            {% if insight_opportunities %}
+                <div class="insight-compact-list">
+                    {% for item in insight_opportunities|slice:":3" %}
+                    <div class="insight-compact-row {{ item.css_modifier }}">
+                        <i class="bi {{ item.icon }} insight-compact-icon"></i>
+                        <span class="insight-compact-title">{{ item.title }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if insight_opportunities|length > 3 %}
+                <p class="insight-more-hint">+{{ insight_opportunities|length|add:"-3" }} mais — clique para ver tudo</p>
+                {% endif %}
+            {% else %}
+                <div class="insight-empty">
+                    <i class="bi bi-check-circle insight-empty__icon"></i>
+                    <p>Nenhuma sugestão de melhoria por enquanto. Continue assim!</p>
+                </div>
+            {% endif %}
         </section>
 
     </div>
 
 </div>
+
+<!-- ── Strengths Modal ──────────────────────────────────────────────────── -->
+{% if insight_strengths %}
+<div class="modal fade" id="strengthsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content insight-modal-content">
+            <div class="modal-header insight-modal-header insight-modal-header--strength">
+                <h5 class="modal-title">
+                    <i class="bi bi-graph-up-arrow"></i> Onde você está indo bem
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body insight-modal-body">
+                <p class="insight-modal-intro">
+                    Esses são seus pontos fortes identificados com base na sua atividade na plataforma.
+                </p>
+                <div class="insight-list">
+                    {% for item in insight_strengths %}
+                        {% include 'partials/_insight_item.html' with insight=item %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Opportunities Modal ─────────────────────────────────────────────── -->
+{% if insight_opportunities %}
+<div class="modal fade" id="opportunitiesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content insight-modal-content">
+            <div class="modal-header insight-modal-header insight-modal-header--opp">
+                <h5 class="modal-title">
+                    <i class="bi bi-bullseye"></i> O que você pode melhorar
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body insight-modal-body">
+                <p class="insight-modal-intro">
+                    Sugestões personalizadas baseadas no seu perfil e histórico de candidaturas.
+                </p>
+                <div class="insight-list">
+                    {% for item in insight_opportunities %}
+                        {% include 'partials/_insight_item.html' with insight=item %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.utils import timezone
 
 from company.models import CompanyProfile, CompanyFollow, SkillEndorsement, CompanyQualityEndorsement, Job
+from company.insights import compute_company_insights
 from candidates.models import CandidateProfile, JobApplication
 from core.skills import filter_hard_skills, filter_soft_skills, HARD_SKILLS, SOFT_SKILL_CATEGORIES
 from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES, LANGUAGES, SOFT_SKILLS, COMPANY_QUALITIES
@@ -42,6 +43,8 @@ def home_company(request):
         job__company=profile, status=JobApplication.STATUS_PENDING
     ).count()
 
+    strengths, opportunities = compute_company_insights(profile)
+
     return render(request, 'home_company.html', {
         'open_jobs_count': jobs.filter(status=Job.STATUS_OPEN).count(),
         'total_jobs_count': jobs.count(),
@@ -49,6 +52,8 @@ def home_company(request):
         'new_applications': new_applications,
         'recent_applications': recent_applications,
         'recent_jobs': jobs[:3],
+        'insight_strengths': strengths,
+        'insight_opportunities': opportunities,
     })
 
 
