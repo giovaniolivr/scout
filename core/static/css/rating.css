@@ -1,0 +1,522 @@
+/* ============================================================
+   rating.css — Shared styles for rating UI (company + candidate)
+   ============================================================ */
+
+/* ── Rating section wrapper ──────────────────────────────── */
+.rating-section {
+    margin-bottom: 1.25rem;
+}
+
+.rating-section-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 0.5rem;
+}
+
+.optional-label {
+    font-weight: 400;
+    color: #888;
+}
+
+.rating-intro {
+    font-size: 0.875rem;
+    color: #555;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+.rating-skip-note {
+    font-size: 0.78rem;
+    color: #888;
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* ── CSS-only star rating (radio inputs in 5→1 order) ────── */
+.star-rating-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.1rem;
+}
+
+.star-rating-group input[type="radio"] {
+    display: none;
+}
+
+.star-rating-group label {
+    font-size: 1.75rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.15s ease;
+    padding: 0 0.1rem;
+    line-height: 1;
+}
+
+/* Highlight on hover: hovered label + all siblings to the right (higher value) */
+.star-rating-group label:hover,
+.star-rating-group label:hover ~ label {
+    color: #f5c518;
+}
+
+/* Highlight when checked: checked label + all siblings to the right */
+.star-rating-group input[type="radio"]:checked + label,
+.star-rating-group input[type="radio"]:checked ~ label {
+    color: #f5c518;
+}
+
+/* ── Submitted stars (read-only display) ─────────────────── */
+.submitted-stars {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.submitted-stars .fa-star {
+    font-size: 1.3rem;
+}
+
+.star-filled {
+    color: #f5c518;
+}
+
+.star-empty {
+    color: #ccc;
+}
+
+.submitted-stars-label {
+    font-size: 0.85rem;
+    color: #555;
+    margin-left: 0.35rem;
+    font-weight: 600;
+}
+
+.submitted-comment {
+    font-size: 0.9rem;
+    color: #444;
+    font-style: italic;
+    line-height: 1.55;
+    margin-top: 0.5rem;
+}
+
+/* ── Endorsement pills ───────────────────────────────────── */
+.endorsement-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.endorsement-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #444;
+    background: #f9f9f9;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.endorsement-pill input[type="checkbox"] {
+    display: none;
+}
+
+.endorsement-icon {
+    font-size: 0.75rem;
+    transition: color 0.15s;
+}
+
+.endorsement-pill:hover {
+    border-color: #888;
+    background: #f0f0f0;
+}
+
+.endorsement-pill--selected {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.endorsement-pill--selected .endorsement-icon {
+    color: #fff;
+}
+
+/* Submitted (read-only confirmed) pill */
+.endorsement-pill--submitted {
+    border-color: #1a7a3a;
+    background: #eaf5ee;
+    color: #1a7a3a;
+    cursor: default;
+}
+
+.endorsement-count {
+    background: #1a7a3a;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.05rem 0.4rem;
+    margin-left: 0.2rem;
+    line-height: 1.4;
+}
+
+/* Skill search filter input */
+.skill-search-filter {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+}
+
+.submitted-endorsements {
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ── Status finalized note ───────────────────────────────── */
+.status-finalized-note {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* ── Applicant detail two-column layout ──────────────────── */
+.applicant-detail-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.applicant-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.candidate-profile-card {
+    text-align: center;
+    padding: 1.75rem 1.25rem;
+}
+
+.candidate-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #111;
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    letter-spacing: 1px;
+}
+
+.candidate-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.15rem;
+}
+
+.candidate-email {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 1rem;
+    word-break: break-all;
+}
+
+.candidate-info-list {
+    text-align: left;
+    border-top: 1px solid #eee;
+    padding-top: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.candidate-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: #444;
+}
+
+.candidate-info-item .fa-solid {
+    color: #888;
+    width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.score-section {
+    border-top: 1px solid #eee;
+    padding-top: 0.9rem;
+    margin-top: 0.9rem;
+    text-align: center;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+}
+
+.score-circle-sm {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2.5px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.4rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #888;
+}
+
+.score-circle-sm.score-circle-filled {
+    border-color: #111;
+    color: #111;
+}
+
+.score-hint {
+    font-size: 0.73rem;
+    color: #aaa;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Rating card */
+.rating-card {
+    padding: 1.5rem;
+}
+
+/* Application detail card */
+.application-detail-card {
+    padding: 1.5rem;
+}
+
+.application-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.application-meta-date {
+    font-size: 0.82rem;
+    color: #666;
+}
+
+.application-message-box {
+    background: #f7f7f7;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.application-message-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+}
+
+.application-message-text {
+    font-size: 0.875rem;
+    color: #333;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.no-message-note {
+    font-size: 0.82rem;
+    color: #aaa;
+    font-style: italic;
+    margin-bottom: 0.75rem;
+}
+
+.status-control {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.status-control-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 0.6rem;
+}
+
+.status-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.status-btn--active {
+    pointer-events: none;
+}
+
+.status-btn--viewed {
+    background: #f0f0f0;
+    border-color: #ccc;
+    color: #555;
+}
+
+.back-link-row {
+    margin-top: 1rem;
+}
+
+.panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.75rem;
+}
+
+.job-info-meta {
+    font-size: 0.82rem;
+    color: #666;
+}
+
+/* ── Dev panel (DEV ONLY) ────────────────────────────────── */
+.dev-panel {
+    border: 2px dashed #e67e22;
+    background: #fffbf5;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.dev-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #c0392b;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.dev-panel-header .fa-triangle-exclamation {
+    color: #e67e22;
+    font-size: 1rem;
+}
+
+.dev-panel-desc {
+    font-size: 0.82rem;
+    color: #555;
+    margin-bottom: 0.85rem;
+}
+
+.dev-panel-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.dev-btn-accept {
+    background: #1a7a3a;
+    color: #fff;
+    border: none;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.dev-btn-accept:hover {
+    background: #155f2e;
+    color: #fff;
+}
+
+.dev-btn-reject {
+    background: #a83232;
+    color: #fff;
+    border: none;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.dev-btn-reject:hover {
+    background: #882828;
+    color: #fff;
+}
+
+.dev-panel-done {
+    font-size: 0.82rem;
+    color: #555;
+    margin: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .applicant-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .candidate-profile-card {
+        text-align: left;
+    }
+
+    .candidate-avatar {
+        margin: 0 0 0.75rem;
+    }
+
+    .score-section {
+        text-align: left;
+    }
+
+    .score-circle-sm {
+        margin: 0 0 0.4rem;
+    }
+
+    .star-rating-group label {
+        font-size: 1.5rem;
+    }
+
+    .status-buttons {
+        flex-direction: column;
+    }
+
+    .dev-panel-actions {
+        flex-direction: column;
+    }
+
+    .dev-btn-accept,
+    .dev-btn-reject {
+        width: 100%;
+        text-align: center;
+    }
+}

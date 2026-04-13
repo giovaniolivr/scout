@@ -4,6 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=6">
 <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/rating.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
@@ -18,7 +19,9 @@
         <div class="job-detail-header">
             <div>
                 <h2 class="job-detail-title">{{ application.job.title }}</h2>
-                <p class="job-detail-company">{{ application.job.company.company_name }}</p>
+                <a href="{% url 'company_public_profile' application.job.company.id %}" class="job-detail-company">
+                    {{ application.job.company.company_name }}
+                </a>
             </div>
             <div class="application-card-badges">
                 <span class="job-status-badge {{ application.job.status }}">{{ application.job.get_status_display }}</span>
@@ -43,48 +46,102 @@
             <p class="job-detail-description">{{ application.message }}</p>
         {% endif %}
 
-        <!-- Rating — only when job is closed and not yet rated -->
-        {% if application.job.status != 'open' %}
-            <hr class="detail-divider">
-            {% if application.experience_rating is None %}
-                <h4 class="detail-section-title">Como foi sua experiência?</h4>
-                <p class="dashboard-subtitle">A vaga foi encerrada. Avalie o processo e ela será arquivada.</p>
+        <!-- Rating — shown after company accepts or rejects -->
+        {% if can_rate or application.experience_rating is not None %}
+        <hr class="detail-divider">
 
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="rate">
+        {% if can_rate %}
+            <h4 class="detail-section-title">Como foi sua experiência?</h4>
+            <p class="dashboard-subtitle" style="margin-bottom:1.25rem;">
+                {% if application.status == 'accepted' %}
+                    Parabéns pela aprovação! Conte como foi o processo.
+                {% else %}
+                    Obrigado por participar. Avalie o processo — seu feedback ajuda a melhorar a plataforma.
+                {% endif %}
+                Todos os campos são opcionais.
+            </p>
 
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="rate">
+
+                <div class="rating-section">
+                    <p class="rating-section-label">Nota geral <span class="optional-label">(opcional)</span></p>
                     <div class="star-rating-group">
                         {% for i in "54321" %}
                         <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
-                        <label for="star{{ i }}"><i class="fa-solid fa-star"></i></label>
+                        <label for="star{{ i }}" title="{{ i }} estrela{{ i|pluralize }}">
+                            <i class="fa-solid fa-star"></i>
+                        </label>
                         {% endfor %}
                     </div>
                     {% if rating_error %}
-                        <p class="input-error">{{ rating_error }}</p>
+                        <p class="input-error mt-1">{{ rating_error }}</p>
                     {% endif %}
+                </div>
 
+                {% if company_qualities %}
+                <div class="rating-section">
+                    <p class="rating-section-label">
+                        Como foi a empresa? <span class="optional-label">(opcional — marque o que se aplicou)</span>
+                    </p>
+                    <div class="endorsement-pills">
+                        {% for quality in company_qualities %}
+                        <label class="endorsement-pill">
+                            <input type="checkbox" name="endorsed_qualities" value="{{ quality }}" class="endorsement-checkbox">
+                            <i class="fa-regular fa-circle endorsement-icon"></i>
+                            {{ quality }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="rating-section">
+                    <p class="rating-section-label">Comentário <span class="optional-label">(opcional)</span></p>
                     <textarea
                         name="comment"
-                        class="email-input apply-textarea mt-3"
+                        class="email-input"
                         rows="3"
-                        placeholder="A empresa entrou em contato? Como foi o processo? (opcional)"
+                        placeholder="A empresa entrou em contato? Como foi o processo seletivo?"
+                        style="resize: vertical;"
                     ></textarea>
+                </div>
 
-                    <button type="submit" class="btn btn-black w-100 mt-2">Enviar avaliação</button>
-                </form>
-            {% else %}
-                <h4 class="detail-section-title">Sua avaliação</h4>
-                <p class="dashboard-subtitle">
-                    Você avaliou esta experiência com {{ application.experience_rating }} estrela{{ application.experience_rating|pluralize }}.
-                    {% if application.experience_comment %}
-                        <br>{{ application.experience_comment }}
-                    {% endif %}
-                </p>
+                <button type="submit" class="btn btn-black w-100 mt-2">Enviar e arquivar</button>
+                <p class="rating-skip-note">Ao enviar, esta candidatura será arquivada da sua lista.</p>
+            </form>
+
+        {% else %}
+            <h4 class="detail-section-title">Sua avaliação</h4>
+            {% if application.experience_rating %}
+            <div class="submitted-stars">
+                {% for i in "12345" %}
+                    <i class="fa-solid fa-star {% if forloop.counter <= application.experience_rating %}star-filled{% else %}star-empty{% endif %}"></i>
+                {% endfor %}
+                <span class="submitted-stars-label">{{ application.experience_rating }}/5</span>
+            </div>
+            {% endif %}
+            {% if application.experience_comment %}
+            <p class="submitted-comment">"{{ application.experience_comment }}"</p>
+            {% endif %}
+            {% if existing_quality_endorsements %}
+            <div class="submitted-endorsements" style="margin-top:0.75rem;">
+                <p class="rating-section-label">Qualidades destacadas</p>
+                <div class="endorsement-pills">
+                    {% for quality in existing_quality_endorsements %}
+                    <span class="endorsement-pill endorsement-pill--submitted">
+                        <i class="fa-solid fa-check"></i> {{ quality }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
             {% endif %}
         {% endif %}
+        {% endif %}
 
-        <!-- Hide button -->
+        <!-- Hide button (only when not pending rating) -->
+        {% if not can_rate %}
         <hr class="detail-divider">
         <form method="post">
             {% csrf_token %}
@@ -93,8 +150,67 @@
                 <i class="fa-solid fa-eye-slash"></i> Remover da minha lista
             </button>
         </form>
+        {% endif %}
 
     </div>
 
+    <!-- ================================================================
+         DEV PANEL — SOMENTE DESENVOLVIMENTO — REMOVER ANTES DO LANÇAMENTO
+         ================================================================ -->
+    {% if show_dev_tools %}
+    <div class="dev-panel">
+        <div class="dev-panel-header">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <strong>PAINEL DE DESENVOLVIMENTO</strong>
+            <span>— visível apenas com DEBUG=True — remover antes do deploy</span>
+        </div>
+        <p class="dev-panel-desc">
+            Simule a resposta da empresa sem precisar trocar de conta.
+            Status atual da candidatura: <strong>{{ application.get_status_display }}</strong>
+        </p>
+        {% if application.status == 'pending' or application.status == 'viewed' %}
+        <div class="dev-panel-actions">
+            <form method="post" action="{% url 'dev_simulate_response' application.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="accepted">
+                <button type="submit" class="btn dev-btn-accept">
+                    <i class="fa-solid fa-check me-1"></i> Simular: Aprovado
+                </button>
+            </form>
+            <form method="post" action="{% url 'dev_simulate_response' application.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="rejected">
+                <button type="submit" class="btn dev-btn-reject">
+                    <i class="fa-solid fa-xmark me-1"></i> Simular: Reprovado
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <p class="dev-panel-done">
+            <i class="fa-solid fa-circle-check me-1"></i>
+            Status já é "{{ application.get_status_display }}" — acesse o painel da empresa para avaliar o candidato.
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.endorsement-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+        var pill = cb.closest('.endorsement-pill');
+        var icon = pill.querySelector('.endorsement-icon');
+        if (cb.checked) {
+            pill.classList.add('endorsement-pill--selected');
+            icon.className = 'fa-solid fa-circle-check endorsement-icon';
+        } else {
+            pill.classList.remove('endorsement-pill--selected');
+            icon.className = 'fa-regular fa-circle endorsement-icon';
+        }
+    });
+});
+</script>
 {% endblock %}

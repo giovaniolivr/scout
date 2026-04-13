@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.conf import settings
 
-from company.models import Job
+from company.models import Job, CompanyFollow, CompanyQualityEndorsement
 from core.skills import filter_hard_skills, filter_soft_skills, SOFT_SKILL_CATEGORIES
-from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES
+from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES, LANGUAGES, COMPANY_QUALITIES
 from .models import CandidateProfile, JobApplication
 
 
@@ -169,6 +170,8 @@ def edit_profile_candidate(request):
         hard_skills = filter_hard_skills(request.POST.get('hard_skills', ''))
         linkedin_url = request.POST.get('linkedin_url', '').strip()
         github_url = request.POST.get('github_url', '').strip()
+        portfolio_url = request.POST.get('portfolio_url', '').strip()
+        selected_languages = request.POST.getlist('languages')
         cv_file = request.FILES.get('profile_cv')
 
         # Visibility — ensure hidden is a strict subset of the selected skills
@@ -198,6 +201,12 @@ def edit_profile_candidate(request):
             linkedin_url = 'https://' + linkedin_url
         if github_url and not github_url.startswith(('http://', 'https://')):
             github_url = 'https://' + github_url
+        if portfolio_url and not portfolio_url.startswith(('http://', 'https://')):
+            portfolio_url = 'https://' + portfolio_url
+
+        # Only accept languages from the predefined list
+        valid_language_set = set(LANGUAGES)
+        languages = ', '.join(l for l in selected_languages if l in valid_language_set)
 
         if cv_file:
             ext = f".{cv_file.name.rsplit('.', 1)[-1].lower()}"
@@ -214,6 +223,8 @@ def edit_profile_candidate(request):
                 'education_choices': EDUCATION_CHOICES,
                 'job_areas': JOB_AREAS,
                 'seniority_levels': SENIORITY_LEVELS,
+                'languages': LANGUAGES,
+                'selected_languages': selected_languages,
             })
 
         profile.bio = bio
@@ -226,6 +237,8 @@ def edit_profile_candidate(request):
         profile.hidden_hard_skills = final_hidden_hard
         profile.linkedin_url = linkedin_url
         profile.github_url = github_url
+        profile.portfolio_url = portfolio_url
+        profile.languages = languages
         if cv_file:
             profile.profile_cv = cv_file
         profile.save()
@@ -238,6 +251,8 @@ def edit_profile_candidate(request):
         'education_choices': EDUCATION_CHOICES,
         'job_areas': JOB_AREAS,
         'seniority_levels': SENIORITY_LEVELS,
+        'languages': LANGUAGES,
+        'selected_languages': profile.get_languages_list(),
     })
 
 
@@ -437,25 +452,84 @@ def application_detail(request, application_id):
             application.save()
             return redirect('home_candidate')
 
-        if action == 'rate' and application.job.status != Job.STATUS_OPEN and application.experience_rating is None:
+        final_statuses = [JobApplication.STATUS_ACCEPTED, JobApplication.STATUS_REJECTED]
+        if action == 'rate' and application.status in final_statuses and application.experience_rating is None:
             rating = request.POST.get('rating', '')
             comment = request.POST.get('comment', '').strip()
+            endorsed_qualities = request.POST.getlist('endorsed_qualities')
 
-            if not rating.isdigit() or not (1 <= int(rating) <= 5):
+            if rating and (not rating.isdigit() or not (1 <= int(rating) <= 5)):
                 return render(request, 'application_detail.html', {
                     'application': application,
                     'rating_error': 'Selecione uma avaliação de 1 a 5.',
+                    'can_rate': True,
+                    'show_dev_tools': settings.DEBUG,
+                    'company_qualities': COMPANY_QUALITIES,
                 })
 
-            application.experience_rating = int(rating)
+            application.experience_rating = int(rating) if rating else None
             application.experience_comment = comment
             application.is_archived = True
             application.save()
 
+            # Record company quality endorsements
+            valid_qualities = set(COMPANY_QUALITIES)
+            company = application.job.company
+            for quality in endorsed_qualities:
+                if quality in valid_qualities:
+                    CompanyQualityEndorsement.objects.get_or_create(
+                        candidate=profile,
+                        company=company,
+                        job_application=application,
+                        quality_name=quality,
+                    )
+
             messages.success(request, 'Avaliação enviada. Obrigado pelo feedback!')
             return redirect('home_candidate')
+
+    final_statuses = [JobApplication.STATUS_ACCEPTED, JobApplication.STATUS_REJECTED]
+
+    # Qualities already endorsed (if candidate already rated — shouldn't normally reach here)
+    existing_quality_endorsements = set(
+        application.company_quality_endorsements.values_list('quality_name', flat=True)
+    )
 
     return render(request, 'application_detail.html', {
         'application': application,
         'rating_error': '',
+        'can_rate': application.status in final_statuses and application.experience_rating is None,
+        'show_dev_tools': settings.DEBUG,
+        'company_qualities': COMPANY_QUALITIES,
+        'existing_quality_endorsements': existing_quality_endorsements,
     })
+
+# ---------------------------------------------------------------------------
+# PUBLIC CANDIDATE PROFILE (visible to companies and other logged-in users)
+# ---------------------------------------------------------------------------
+
+@login_required
+def candidate_public_profile(request, candidate_id):
+    candidate = get_object_or_404(CandidateProfile, id=candidate_id, is_onboarded=True)
+    return render(request, 'candidate_public_profile.html', {'candidate': candidate})
+
+
+# ---------------------------------------------------------------------------
+# DEV ONLY — simulate company response on a candidate's application
+# Remove this view and its URL before production deployment.
+# ---------------------------------------------------------------------------
+
+@login_required
+@require_POST
+def dev_simulate_response(request, application_id):
+    if not settings.DEBUG:
+        return redirect('home')
+    redir = _require_candidate(request)
+    if redir:
+        return redir
+    profile = request.user.candidate_profile
+    application = get_object_or_404(JobApplication, pk=application_id, candidate=profile)
+    new_status = request.POST.get('status', '')
+    if new_status in [JobApplication.STATUS_ACCEPTED, JobApplication.STATUS_REJECTED]:
+        application.status = new_status
+        application.save()
+    return redirect('application_detail', application_id=application_id)

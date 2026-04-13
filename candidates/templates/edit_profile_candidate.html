@@ -183,6 +183,28 @@
             {% endif %}
             {% endwith %}
 
+            <!-- ── Idiomas ───────────────────────────────────────────── -->
+            <h3 class="form-section-heading">Idiomas</h3>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Idiomas que você fala <span class="optional-label">(opcional)</span>
+                </label>
+                <div class="language-checkboxes">
+                    {% for lang in languages %}
+                    <label class="language-checkbox-label">
+                        <input
+                            type="checkbox"
+                            name="languages"
+                            value="{{ lang }}"
+                            {% if lang in selected_languages %}checked{% endif %}
+                        >
+                        {{ lang }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
             <!-- ── Currículo e links ─────────────────────────────────── -->
             <h3 class="form-section-heading">Currículo e links</h3>
 
@@ -242,6 +264,19 @@
                     class="email-input"
                     placeholder="https://github.com/seu-usuario"
                     value="{{ form_data.github_url|default:profile.github_url }}"
+                >
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">
+                    Portfólio / Site pessoal <span class="optional-label">(opcional)</span>
+                </label>
+                <input
+                    type="url"
+                    name="portfolio_url"
+                    class="email-input"
+                    placeholder="https://seuportfolio.com"
+                    value="{{ form_data.portfolio_url|default:profile.portfolio_url }}"
                 >
             </div>
 

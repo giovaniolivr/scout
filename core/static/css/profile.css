@@ -490,3 +490,56 @@
         width: 100%;
     }
 }
+
+/* ===========================
+   LANGUAGE TAGS
+=========================== */
+
+.profile-languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+}
+
+.language-tag {
+    display: inline-block;
+    background-color: #e8e8e8;
+    color: #333;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+/* Language checkbox grid in edit form */
+.language-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+}
+
+.language-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+    color: #333;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    transition: background-color 0.15s;
+}
+
+.language-checkbox-label:hover {
+    background-color: #e4e4e4;
+}
+
+.language-checkbox-label input[type="checkbox"] {
+    accent-color: #111;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+

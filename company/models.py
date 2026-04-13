@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from core.roles import JOB_AREAS, SENIORITY_LEVELS, SENIORITY_ORDER
+from core.roles import JOB_AREAS, SENIORITY_LEVELS, SENIORITY_ORDER, SOFT_SKILLS
 
 
 class CompanyProfile(models.Model):
@@ -63,6 +63,68 @@ class CompanyFollow(models.Model):
         return f"{self.candidate} follows {self.company}"
 
 
+class SkillEndorsement(models.Model):
+    """
+    Records that a company observed a specific skill in a candidate during a hiring process.
+    One record per skill per application — companies endorse skills they witnessed, not rate them.
+    Used to build the candidate's validated skill profile over time.
+    """
+    candidate = models.ForeignKey(
+        'candidates.CandidateProfile',
+        on_delete=models.CASCADE,
+        related_name='endorsements',
+    )
+    company = models.ForeignKey(
+        CompanyProfile,
+        on_delete=models.CASCADE,
+        related_name='given_endorsements',
+    )
+    job_application = models.ForeignKey(
+        'candidates.JobApplication',
+        on_delete=models.CASCADE,
+        related_name='endorsements',
+    )
+    skill_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('job_application', 'skill_name')
+
+    def __str__(self):
+        return f"{self.company.company_name} endorsed '{self.skill_name}' for {self.candidate}"
+
+
+class CompanyQualityEndorsement(models.Model):
+    """
+    Records that a candidate endorsed a specific quality about a company's
+    hiring process. One record per quality per application.
+    Used to build the company's public reputation over time.
+    """
+    candidate = models.ForeignKey(
+        'candidates.CandidateProfile',
+        on_delete=models.CASCADE,
+        related_name='company_quality_endorsements',
+    )
+    company = models.ForeignKey(
+        CompanyProfile,
+        on_delete=models.CASCADE,
+        related_name='quality_endorsements',
+    )
+    job_application = models.ForeignKey(
+        'candidates.JobApplication',
+        on_delete=models.CASCADE,
+        related_name='company_quality_endorsements',
+    )
+    quality_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('job_application', 'quality_name')
+
+    def __str__(self):
+        return f"{self.candidate} endorsed '{self.quality_name}' for {self.company.company_name}"
+
+
 class Job(models.Model):
     STATUS_OPEN = 'open'
     STATUS_PAUSED = 'paused'
@@ -88,6 +150,7 @@ class Job(models.Model):
     location = models.CharField(max_length=100)
     job_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_FULL_TIME)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
+    vacancies = models.PositiveIntegerField(default=1)
     external_url = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -104,6 +167,24 @@ class Job(models.Model):
 
     def get_required_soft_skills_list(self):
         return [s.strip() for s in self.required_soft_skills.split(',') if s.strip()]
+
+    def get_approved_count(self):
+        return self.applications.filter(status='accepted').count()
+
+    def auto_close_if_full(self):
+        """
+        Called after a candidate is accepted. If the number of accepted
+        applications reaches the vacancy target, closes the job and
+        automatically rejects all remaining pending/viewed applications.
+        """
+        if self.status == self.STATUS_CLOSED:
+            return
+        if self.get_approved_count() >= self.vacancies:
+            self.status = self.STATUS_CLOSED
+            self.save(update_fields=['status'])
+            self.applications.filter(
+                status__in=['pending', 'viewed']
+            ).update(status='rejected')
 
     def has_requirements(self):
         return bool(self.required_hard_skills.strip() or self.required_soft_skills.strip())

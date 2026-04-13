@@ -46,7 +46,7 @@
                     {% elif user_is_company %}
                         <div class="d-flex align-items-center">
                             <a href="{% url 'job_create' %}" class="nav-link text-white me-3">Publicar vaga</a>
-                            <a href="{% url 'candidate_list' %}" class="nav-link text-white me-3">Candidatos</a>
+                            <a href="{% url 'candidate_list' %}" class="nav-link text-white me-3">Buscar Talentos</a>
                             <div class="dropdown">
                                 <button class="btn btn-register dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
                                     <span class="me-2">{{ request.user.company_profile.company_name }}</span>

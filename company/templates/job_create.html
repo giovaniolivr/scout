@@ -132,6 +132,22 @@
 
             </div>
 
+            <!-- Vacancies -->
+            <div class="form-section">
+                <label class="form-label">Número de vagas *</label>
+                <input
+                    type="number"
+                    name="vacancies"
+                    class="email-input"
+                    min="1"
+                    max="999"
+                    value="{{ form_data.vacancies|default:'1' }}"
+                    style="max-width: 140px;"
+                >
+                <p class="field-hint">Quando esse número de candidatos for aprovado, a vaga será encerrada automaticamente.</p>
+                {% if errors.vacancies %}<p class="input-error">{{ errors.vacancies }}</p>{% endif %}
+            </div>
+
             <!-- External link -->
             <div class="form-section">
                 <label class="form-label">

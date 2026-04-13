@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/candidate.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
 <link rel="stylesheet" href="{% static 'css/profile.css' %}?v=1">
 {% endblock %}
 
@@ -12,44 +12,41 @@
     <!-- Header card -->
     <div class="profile-header-card dashboard-card">
         <div class="profile-avatar-lg">
-            {{ profile.user.first_name|first }}{{ profile.user.last_name|first }}
+            {{ candidate.user.first_name|first }}{{ candidate.user.last_name|first }}
         </div>
         <div class="profile-identity">
-            <h2 class="profile-name">{{ profile.user.get_full_name }}</h2>
-            {% if profile.desired_area or profile.desired_seniority %}
-                <p class="profile-role">
-                    {% if profile.desired_seniority %}{{ profile.get_desired_seniority_display }}{% endif %}
-                    {% if profile.desired_area and profile.desired_seniority %} · {% endif %}
-                    {% if profile.desired_area %}{{ profile.get_desired_area_display }}{% endif %}
-                </p>
+            <h2 class="profile-name">{{ candidate.user.get_full_name }}</h2>
+            {% if candidate.desired_seniority or candidate.desired_area %}
+            <p class="profile-role">
+                {% if candidate.desired_seniority %}{{ candidate.get_desired_seniority_display }}{% endif %}
+                {% if candidate.desired_area and candidate.desired_seniority %} · {% endif %}
+                {% if candidate.desired_area %}{{ candidate.get_desired_area_display }}{% endif %}
+            </p>
             {% endif %}
             <div class="profile-meta-row">
-                {% if profile.city %}
+                {% if candidate.city %}
                 <span class="profile-meta-item">
                     <i class="fa-solid fa-location-dot"></i>
-                    {{ profile.city }}{% if profile.district %}, {{ profile.district }}{% endif %}
+                    {{ candidate.city }}{% if candidate.district %}, {{ candidate.district }}{% endif %}
                 </span>
                 {% endif %}
-                {% if profile.linkedin_url %}
-                <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
+                {% if candidate.linkedin_url %}
+                <a href="{{ candidate.linkedin_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
                     <i class="fa-brands fa-linkedin"></i> LinkedIn
                 </a>
                 {% endif %}
-                {% if profile.github_url %}
-                <a href="{{ profile.github_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
+                {% if candidate.github_url %}
+                <a href="{{ candidate.github_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
                     <i class="fa-brands fa-github"></i> GitHub
                 </a>
                 {% endif %}
-                {% if profile.portfolio_url %}
-                <a href="{{ profile.portfolio_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
+                {% if candidate.portfolio_url %}
+                <a href="{{ candidate.portfolio_url }}" target="_blank" rel="noopener" class="profile-meta-item profile-meta-link">
                     <i class="fa-solid fa-globe"></i> Portfólio
                 </a>
                 {% endif %}
             </div>
         </div>
-        <a href="{% url 'edit_profile_candidate' %}" class="btn btn-gray profile-edit-btn">
-            <i class="fa-solid fa-pen me-1"></i> Editar perfil
-        </a>
     </div>
 
     <!-- Body -->
@@ -60,53 +57,40 @@
 
             <div class="dashboard-card profile-score-card">
                 <h3 class="panel-title">Scout Score</h3>
-                {% if profile.scout_score is not None %}
+                {% if candidate.scout_score is not None %}
                 <div class="score-circle score-circle--filled">
-                    <span>{{ profile.scout_score }}</span>
+                    <span>{{ candidate.scout_score }}</span>
                 </div>
-                <p class="score-description">Atualizado com base nos feedbacks recebidos.</p>
                 {% else %}
                 <div class="score-circle">
                     <span>—</span>
                 </div>
-                <p class="score-description">Calculado após os primeiros feedbacks das empresas.</p>
+                <p class="score-description">Calculado após feedbacks de empresas.</p>
                 {% endif %}
             </div>
 
-            <div class="dashboard-card profile-info-card">
-                <p class="profile-info-label"><i class="fa-solid fa-envelope me-1"></i> E-mail</p>
-                <p class="profile-info-value">{{ profile.user.email }}</p>
-            </div>
-
-            {% if profile.phone %}
-            <div class="dashboard-card profile-info-card">
-                <p class="profile-info-label"><i class="fa-solid fa-phone me-1"></i> Telefone</p>
-                <p class="profile-info-value">{{ profile.phone }}</p>
-            </div>
-            {% endif %}
-
-            {% if profile.education_level %}
+            {% if candidate.education_level %}
             <div class="dashboard-card profile-info-card">
                 <p class="profile-info-label"><i class="fa-solid fa-graduation-cap me-1"></i> Escolaridade</p>
-                <p class="profile-info-value">{{ profile.get_education_level_display }}</p>
+                <p class="profile-info-value">{{ candidate.get_education_level_display }}</p>
             </div>
             {% endif %}
 
-            {% if profile.get_languages_list %}
+            {% if candidate.get_languages_list %}
             <div class="dashboard-card profile-info-card">
                 <p class="profile-info-label"><i class="fa-solid fa-language me-1"></i> Idiomas</p>
                 <div class="profile-languages">
-                    {% for lang in profile.get_languages_list %}
+                    {% for lang in candidate.get_languages_list %}
                     <span class="language-tag">{{ lang }}</span>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
-            {% if profile.profile_cv %}
+            {% if candidate.profile_cv %}
             <div class="dashboard-card profile-info-card">
                 <p class="profile-info-label"><i class="fa-solid fa-file-lines me-1"></i> Currículo</p>
-                <a href="{{ profile.profile_cv.url }}" target="_blank" rel="noopener" class="btn btn-black btn-sm w-100 mt-1">
+                <a href="{{ candidate.profile_cv.url }}" target="_blank" rel="noopener" class="btn btn-black btn-sm w-100 mt-1">
                     <i class="fa-solid fa-file-arrow-down me-1"></i> Download CV
                 </a>
             </div>
@@ -117,14 +101,14 @@
         <!-- Main content -->
         <section class="profile-main">
 
-            {% if profile.bio %}
+            {% if candidate.bio %}
             <div class="dashboard-card profile-section-card">
-                <h3 class="panel-title">Sobre mim</h3>
-                <p class="profile-bio">{{ profile.bio }}</p>
+                <h3 class="panel-title">Sobre</h3>
+                <p class="profile-bio">{{ candidate.bio }}</p>
             </div>
             {% endif %}
 
-            {% with visible_soft=profile.get_visible_soft_skills_list visible_hard=profile.get_visible_hard_skills_list %}
+            {% with visible_soft=candidate.get_visible_soft_skills_list visible_hard=candidate.get_visible_hard_skills_list %}
             {% if visible_soft or visible_hard %}
             <div class="dashboard-card profile-section-card">
                 <h3 class="panel-title">Habilidades</h3>
@@ -150,15 +134,6 @@
                     </div>
                 </div>
                 {% endif %}
-
-            </div>
-            {% elif not profile.has_skills %}
-            <div class="dashboard-card profile-section-card">
-                <h3 class="panel-title">Habilidades</h3>
-                <p class="profile-empty-hint">
-                    Nenhuma habilidade adicionada ainda.
-                    <a href="{% url 'edit_profile_candidate' %}">Adicionar habilidades →</a>
-                </p>
             </div>
             {% endif %}
             {% endwith %}

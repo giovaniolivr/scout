@@ -17,6 +17,7 @@
     {% if candidates %}
         <div class="talent-grid">
             {% for candidate in candidates %}
+            <a href="{% url 'candidate_public_profile' candidate.id %}" class="candidate-card-link">
             <div class="talent-card">
                 <div class="talent-card-avatar">
                     {{ candidate.user.first_name|first }}{{ candidate.user.last_name|first }}
@@ -37,6 +38,7 @@
                     <div class="score-badge" title="Scout Score">—</div>
                 </div>
             </div>
+            </a>
             {% endfor %}
         </div>
     {% else %}

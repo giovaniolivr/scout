@@ -46,3 +46,62 @@ SENIORITY_ORDER = {
 
 VALID_JOB_AREAS     = {v for v, _ in JOB_AREAS}
 VALID_SENIORITIES   = {v for v, _ in SENIORITY_LEVELS}
+
+LANGUAGES = [
+    'Português',
+    'Inglês',
+    'Espanhol',
+    'Francês',
+    'Alemão',
+    'Italiano',
+    'Mandarim',
+    'Japonês',
+    'Árabe',
+    'Russo',
+]
+
+# Soft skills that companies can endorse on candidates.
+# This is the canonical list — used both on candidate profiles and on the
+# company endorsement form (companies can endorse any skill, not just the
+# candidate's listed ones).
+SOFT_SKILLS = [
+    'Comunicação',
+    'Trabalho em equipe',
+    'Liderança',
+    'Resolução de problemas',
+    'Criatividade',
+    'Adaptabilidade',
+    'Proatividade',
+    'Organização',
+    'Gestão de tempo',
+    'Pensamento crítico',
+    'Empatia',
+    'Inteligência emocional',
+    'Atenção aos detalhes',
+    'Autonomia',
+    'Aprendizado rápido',
+    'Foco em resultados',
+    'Colaboração',
+    'Flexibilidade',
+    'Ética profissional',
+    'Comprometimento',
+    'Negociação',
+    'Apresentação / Oratória',
+    'Escrita profissional',
+    'Gestão de conflitos',
+    'Pensamento analítico',
+]
+
+# Qualities that candidates can endorse on companies after a hiring process.
+COMPANY_QUALITIES = [
+    'Retorno rápido',
+    'Comunicação clara',
+    'Processo seletivo organizado',
+    'Feedback após o processo',
+    'Respeitoso com o candidato',
+    'Transparente sobre os requisitos',
+    'Cumpriu os prazos prometidos',
+    'Ambiente acolhedor',
+    'Entrevistador bem preparado',
+    'Descrição da vaga condizente',
+]

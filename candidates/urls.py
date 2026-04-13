@@ -12,4 +12,7 @@ urlpatterns = [
     path('jobs/<int:job_id>/apply-external/', views.apply_external, name='apply_external'),
     path('applications/', views.all_applications, name='all_applications'),
     path('applications/<int:application_id>/', views.application_detail, name='application_detail'),
+    path('<int:candidate_id>/', views.candidate_public_profile, name='candidate_public_profile'),
+    # DEV ONLY — remove before production
+    path('dev/application/<int:application_id>/simulate/', views.dev_simulate_response, name='dev_simulate_response'),
 ]

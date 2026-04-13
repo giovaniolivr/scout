@@ -108,6 +108,21 @@
             </div>
             {% endif %}
 
+            <!-- Company quality endorsements -->
+            {% if quality_endorsements %}
+            <div class="dashboard-card profile-section-card">
+                <h3 class="panel-title">O que candidatos dizem</h3>
+                <div class="endorsement-pills" style="margin-top:0.5rem;">
+                    {% for item in quality_endorsements %}
+                    <span class="endorsement-pill endorsement-pill--submitted" style="cursor:default;">
+                        <i class="fa-solid fa-check"></i> {{ item.quality_name }}
+                        <span class="endorsement-count">{{ item.count }}</span>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Open jobs -->
             <div class="dashboard-card profile-section-card">
                 <h3 class="panel-title">Vagas abertas</h3>

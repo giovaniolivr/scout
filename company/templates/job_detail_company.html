@@ -30,6 +30,9 @@
                         {% if job.seniority %}&nbsp;·&nbsp;{{ job.get_seniority_display }}{% endif %}
                         &nbsp;·&nbsp;
                         Publicada em {{ job.created_at|date:"d/m/Y" }}
+                        &nbsp;·&nbsp;
+                        <i class="fa-solid fa-user-check"></i>
+                        {{ approved_count }}/{{ job.vacancies }} aprovado{{ job.vacancies|pluralize }}
                     </p>
                 </div>
                 <span class="job-status {{ job.status }} job-status-lg">{{ job.get_status_display }}</span>

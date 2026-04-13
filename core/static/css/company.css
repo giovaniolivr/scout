@@ -758,6 +758,7 @@
     align-items: flex-start;
     gap: 1rem;
     color: #111;
+    transition: border-color 0.2s;
 }
 
 .talent-card-avatar {
@@ -1084,24 +1085,63 @@
    CANDIDATE LIST PAGE
 =========================== */
 
-.candidate-search-form {
+.talent-search-form {
+    margin-bottom: 1.5rem;
+}
+
+.talent-search-row {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
     align-items: flex-start;
 }
 
-.candidate-search-input {
-    flex: 1;
-    min-width: 200px;
+.talent-search-input {
+    flex: 2;
+    min-width: 180px;
     margin-bottom: 0;
 }
 
-.candidate-search-btn {
+.talent-search-select {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+.talent-search-btn {
     width: auto;
     padding: 0.9rem 1.5rem;
     white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Active filter tags shown below the search row */
+.active-filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.active-filter-tag {
+    display: inline-block;
+    background-color: #111;
+    color: #fff;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+}
+
+.clear-filters-link {
+    font-size: 0.82rem;
+    color: #555;
+    text-decoration: underline;
+    margin-left: 0.25rem;
+}
+
+.clear-filters-link:hover {
+    color: #000;
 }
 
 .results-count {
@@ -1123,6 +1163,7 @@
     padding: 1.25rem;
     display: flex;
     align-items: flex-start;
+    transition: border-color 0.2s;
     gap: 1rem;
     color: #111;
 }
@@ -1151,8 +1192,14 @@
 .candidate-card-name {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0 0 0.2rem;
+    margin: 0 0 0.15rem;
     color: #111;
+}
+
+.candidate-card-role {
+    font-size: 0.82rem;
+    color: #555;
+    margin: 0 0 0.2rem;
 }
 
 .candidate-card-location {
@@ -1172,6 +1219,20 @@
     color: #999;
     font-style: italic;
     margin: 0;
+}
+
+.candidate-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.candidate-card-link:hover .candidate-card {
+    border-color: #aaa;
+}
+
+.candidate-card-link:hover .talent-card {
+    border-color: #aaa;
 }
 
 
@@ -1201,4 +1262,15 @@
 
 .breadcrumb-sep {
     color: #bbb;
+}
+
+@media (max-width: 575px) {
+    .talent-search-input,
+    .talent-search-select {
+        min-width: 100%;
+    }
+
+    .talent-search-btn {
+        width: 100%;
+    }
 }

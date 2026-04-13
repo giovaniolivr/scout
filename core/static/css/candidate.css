@@ -102,6 +102,15 @@
     color: #111;
 }
 
+.score-circle--filled {
+    background: #111;
+    border-color: #111;
+}
+
+.score-circle--filled span {
+    color: #fff;
+}
+
 .score-description {
     color: #444;
     font-size: 0.9rem;

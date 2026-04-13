@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Count
+from django.utils import timezone
 
-from company.models import CompanyProfile, CompanyFollow, Job
+from company.models import CompanyProfile, CompanyFollow, SkillEndorsement, CompanyQualityEndorsement, Job
 from candidates.models import CandidateProfile, JobApplication
 from core.skills import filter_hard_skills, filter_soft_skills, HARD_SKILLS, SOFT_SKILL_CATEGORIES
-from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES
+from core.roles import JOB_AREAS, SENIORITY_LEVELS, VALID_JOB_AREAS, VALID_SENIORITIES, LANGUAGES, SOFT_SKILLS, COMPANY_QUALITIES
 
 VALID_COMPANY_SIZES = [c[0] for c in CompanyProfile.SIZE_CHOICES]
 
@@ -86,6 +87,7 @@ def job_create(request):
         required_hard_skills = filter_hard_skills(request.POST.get('required_hard_skills', ''))
         required_soft_skills = filter_soft_skills(request.POST.get('required_soft_skills', ''))
 
+        raw_vacancies = request.POST.get('vacancies', '1').strip()
         errors = {}
 
         if not title:
@@ -104,6 +106,13 @@ def job_create(request):
             errors['job_area'] = 'Selecione uma área válida.'
         if seniority not in VALID_SENIORITIES:
             errors['seniority'] = 'Selecione um nível válido.'
+
+        vacancies = 1
+        if raw_vacancies:
+            if not raw_vacancies.isdigit() or int(raw_vacancies) < 1:
+                errors['vacancies'] = 'Número de vagas deve ser 1 ou mais.'
+            else:
+                vacancies = int(raw_vacancies)
 
         if errors:
             return render(request, 'job_create.html', {
@@ -126,6 +135,7 @@ def job_create(request):
             external_url=external_url,
             required_hard_skills=required_hard_skills,
             required_soft_skills=required_soft_skills,
+            vacancies=vacancies,
             status=Job.STATUS_OPEN,
         )
 
@@ -157,6 +167,7 @@ def job_detail_company(request, job_id):
         'job': job,
         'applications': applications,
         'status_choices': Job.STATUS_CHOICES,
+        'approved_count': job.get_approved_count(),
     })
 
 
@@ -206,31 +217,90 @@ def applicant_detail(request, job_id, application_id):
 
     job = get_object_or_404(Job, id=job_id, company=profile)
     application = get_object_or_404(JobApplication, id=application_id, job=job)
+    candidate = application.candidate
 
     # Mark as viewed the first time the company opens the applicant page
     if application.status == JobApplication.STATUS_PENDING:
         application.status = JobApplication.STATUS_VIEWED
         application.save()
 
+    rating_error = None
+
     if request.method == 'POST':
-        new_status = request.POST.get('status', '')
-        allowed = [
-            JobApplication.STATUS_VIEWED,
-            JobApplication.STATUS_ACCEPTED,
-            JobApplication.STATUS_REJECTED,
-        ]
-        if new_status in allowed:
-            application.status = new_status
-            application.save()
-            messages.success(request, 'Status da candidatura atualizado.')
-            return redirect('applicant_detail', job_id=job.id, application_id=application.id)
+        action = request.POST.get('action', '')
+
+        if action == 'rate_candidate':
+            # Only allowed once, and only after a final status
+            final_statuses = [JobApplication.STATUS_ACCEPTED, JobApplication.STATUS_REJECTED]
+            if application.company_rated_at or application.status not in final_statuses:
+                messages.error(request, 'Avaliação não permitida neste momento.')
+                return redirect('applicant_detail', job_id=job.id, application_id=application.id)
+
+            raw_rating = request.POST.get('company_rating', '').strip()
+            company_comment = request.POST.get('company_comment', '').strip()
+            endorsed_skills = request.POST.getlist('endorsed_skills')
+
+            # Validate rating if provided
+            company_rating = None
+            if raw_rating:
+                if not raw_rating.isdigit() or not (1 <= int(raw_rating) <= 5):
+                    rating_error = 'Selecione uma avaliação entre 1 e 5 estrelas.'
+                else:
+                    company_rating = int(raw_rating)
+
+            if not rating_error:
+                application.company_rating = company_rating
+                application.company_comment = company_comment
+                application.company_rated_at = timezone.now()
+                application.save()
+
+                # Record skill endorsements — any skill from the canonical list is valid,
+                # not just what the candidate listed on their profile.
+                valid_skills = set(SOFT_SKILLS)
+                for skill in endorsed_skills:
+                    if skill in valid_skills:
+                        SkillEndorsement.objects.get_or_create(
+                            candidate=candidate,
+                            company=profile,
+                            job_application=application,
+                            skill_name=skill,
+                        )
+
+                # Recalculate Scout Score now that a new rating exists
+                candidate.recalculate_scout_score()
+
+                messages.success(request, 'Avaliação enviada com sucesso.')
+                return redirect('applicant_detail', job_id=job.id, application_id=application.id)
+
         else:
-            messages.error(request, 'Status inválido.')
+            new_status = request.POST.get('status', '')
+            allowed = [
+                JobApplication.STATUS_VIEWED,
+                JobApplication.STATUS_ACCEPTED,
+                JobApplication.STATUS_REJECTED,
+            ]
+            if new_status in allowed:
+                application.status = new_status
+                application.save()
+                if new_status == JobApplication.STATUS_ACCEPTED:
+                    job.auto_close_if_full()
+                messages.success(request, 'Status da candidatura atualizado.')
+                return redirect('applicant_detail', job_id=job.id, application_id=application.id)
+            else:
+                messages.error(request, 'Status inválido.')
+
+    # Endorsements already given on this application
+    existing_endorsements = set(
+        application.endorsements.values_list('skill_name', flat=True)
+    ) if application.company_rated_at else set()
 
     return render(request, 'applicant_detail.html', {
         'job': job,
         'application': application,
-        'candidate': application.candidate,
+        'candidate': candidate,
+        'rating_error': rating_error,
+        'existing_endorsements': existing_endorsements,
+        'all_soft_skills': SOFT_SKILLS,
     })
 
 
@@ -244,25 +314,54 @@ def candidate_list(request):
     if redir:
         return redir
 
-    search = request.GET.get('q', '').strip()
+    search    = request.GET.get('q', '').strip()
+    area      = request.GET.get('area', '').strip()
+    seniority = request.GET.get('seniority', '').strip()
+    language  = request.GET.get('language', '').strip()
+    education = request.GET.get('education', '').strip()
 
-    candidates = CandidateProfile.objects.filter(is_onboarded=True).select_related('user').order_by('user__first_name')
+    candidates = (
+        CandidateProfile.objects
+        .filter(is_onboarded=True)
+        .select_related('user')
+        .order_by('user__first_name')
+    )
 
     if search:
-        candidates = candidates.filter(
-            user__first_name__icontains=search
-        ) | candidates.filter(
-            user__last_name__icontains=search
-        ) | candidates.filter(
-            hard_skills__icontains=search
-        ) | candidates.filter(
-            soft_skills__icontains=search
-        )
-        candidates = candidates.filter(is_onboarded=True).select_related('user').order_by('user__first_name')
+        candidates = (
+            candidates.filter(user__first_name__icontains=search) |
+            candidates.filter(user__last_name__icontains=search) |
+            candidates.filter(hard_skills__icontains=search) |
+            candidates.filter(soft_skills__icontains=search)
+        ).filter(is_onboarded=True).select_related('user').order_by('user__first_name')
+
+    if area and area in VALID_JOB_AREAS:
+        candidates = candidates.filter(desired_area=area)
+
+    if seniority and seniority in VALID_SENIORITIES:
+        candidates = candidates.filter(desired_seniority=seniority)
+
+    if language and language in LANGUAGES:
+        candidates = candidates.filter(languages__icontains=language)
+
+    valid_education = {c[0] for c in CandidateProfile.EDUCATION_CHOICES}
+    if education and education in valid_education:
+        candidates = candidates.filter(education_level=education)
+
+    has_filters = any([search, area, seniority, language, education])
 
     return render(request, 'candidate_list.html', {
         'candidates': candidates,
         'search': search,
+        'area': area,
+        'seniority': seniority,
+        'language': language,
+        'education': education,
+        'has_filters': has_filters,
+        'job_areas': JOB_AREAS,
+        'seniority_levels': SENIORITY_LEVELS,
+        'languages': LANGUAGES,
+        'education_choices': CandidateProfile.EDUCATION_CHOICES,
     })
 
 
@@ -393,12 +492,21 @@ def company_public_profile(request, company_id):
             candidate=candidate_profile, company=company
         ).exists()
 
+    # Aggregated quality endorsements — sorted by count descending
+    quality_endorsements = (
+        company.quality_endorsements
+        .values('quality_name')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+
     return render(request, 'company_public_profile.html', {
         'company': company,
         'jobs': jobs,
         'is_following': is_following,
         'viewer_is_candidate': viewer_is_candidate,
         'follower_count': company.get_follower_count(),
+        'quality_endorsements': quality_endorsements,
     })
 
 

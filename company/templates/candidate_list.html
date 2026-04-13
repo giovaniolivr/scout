@@ -2,27 +2,61 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/company.css' %}?v=8">
+<link rel="stylesheet" href="{% static 'css/company.css' %}?v=9">
 {% endblock %}
 
 {% block content %}
 <div class="company-dashboard">
 
-    <h2 class="dashboard-title">Candidatos na Plataforma</h2>
-    <p class="dashboard-subtitle">Todos os candidatos registrados no Scout.</p>
+    <h2 class="dashboard-title">Buscar Talentos</h2>
+    <p class="dashboard-subtitle">Explore todos os candidatos registrados no Scout e filtre por área, nível e idioma.</p>
 
-    <!-- Search -->
-    <form method="get" class="candidate-search-form">
-        <input
-            type="text"
-            name="q"
-            class="email-input candidate-search-input"
-            placeholder="Buscar por nome ou habilidade…"
-            value="{{ search }}"
-        >
-        <button type="submit" class="btn btn-black candidate-search-btn">Buscar</button>
-        {% if search %}
-            <a href="{% url 'candidate_list' %}" class="btn btn-gray candidate-search-btn">Limpar</a>
+    <!-- Filters -->
+    <form method="get" class="talent-search-form">
+        <div class="talent-search-row">
+            <input
+                type="text"
+                name="q"
+                class="email-input talent-search-input"
+                placeholder="Nome ou habilidade…"
+                value="{{ search }}"
+            >
+            <select name="area" class="email-input talent-search-select">
+                <option value="">Área de atuação</option>
+                {% for value, label in job_areas %}
+                    <option value="{{ value }}" {% if area == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="seniority" class="email-input talent-search-select">
+                <option value="">Nível</option>
+                {% for value, label in seniority_levels %}
+                    <option value="{{ value }}" {% if seniority == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="language" class="email-input talent-search-select">
+                <option value="">Idioma</option>
+                {% for lang in languages %}
+                    <option value="{{ lang }}" {% if language == lang %}selected{% endif %}>{{ lang }}</option>
+                {% endfor %}
+            </select>
+            <select name="education" class="email-input talent-search-select">
+                <option value="">Escolaridade</option>
+                {% for value, label in education_choices %}
+                    <option value="{{ value }}" {% if education == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-black talent-search-btn">Buscar</button>
+        </div>
+
+        {% if has_filters %}
+        <div class="active-filters-row">
+            {% if search %}<span class="active-filter-tag">Nome/habilidade: "{{ search }}"</span>{% endif %}
+            {% if area %}<span class="active-filter-tag">Área: {{ area }}</span>{% endif %}
+            {% if seniority %}<span class="active-filter-tag">Nível: {{ seniority }}</span>{% endif %}
+            {% if language %}<span class="active-filter-tag">Idioma: {{ language }}</span>{% endif %}
+            {% if education %}<span class="active-filter-tag">Escolaridade: {{ education }}</span>{% endif %}
+            <a href="{% url 'candidate_list' %}" class="clear-filters-link">Limpar filtros</a>
+        </div>
         {% endif %}
     </form>
 
@@ -30,12 +64,20 @@
         <p class="results-count">{{ candidates|length }} candidato{{ candidates|length|pluralize }} encontrado{{ candidates|length|pluralize }}</p>
         <div class="candidate-grid">
             {% for candidate in candidates %}
+            <a href="{% url 'candidate_public_profile' candidate.id %}" class="candidate-card-link">
             <div class="candidate-card">
                 <div class="candidate-card-avatar">
                     {{ candidate.user.first_name|first }}{{ candidate.user.last_name|first }}
                 </div>
                 <div class="candidate-card-body">
                     <h4 class="candidate-card-name">{{ candidate.user.get_full_name }}</h4>
+                    {% if candidate.desired_seniority or candidate.desired_area %}
+                    <p class="candidate-card-role">
+                        {% if candidate.desired_seniority %}{{ candidate.get_desired_seniority_display }}{% endif %}
+                        {% if candidate.desired_seniority and candidate.desired_area %} · {% endif %}
+                        {% if candidate.desired_area %}{{ candidate.get_desired_area_display }}{% endif %}
+                    </p>
+                    {% endif %}
                     {% if candidate.city %}
                     <p class="candidate-card-location">
                         <i class="fa-solid fa-location-dot"></i> {{ candidate.city }}
@@ -44,7 +86,7 @@
 
                     {% if candidate.get_hard_skills_list %}
                     <div class="candidate-card-skills">
-                        {% for skill in candidate.get_hard_skills_list %}
+                        {% for skill in candidate.get_hard_skills_list|slice:":4" %}
                         <span class="skill-tag skill-tag--hard skill-tag--sm">{{ skill }}</span>
                         {% endfor %}
                     </div>
@@ -52,7 +94,7 @@
 
                     {% if candidate.get_soft_skills_list %}
                     <div class="candidate-card-skills mt-1">
-                        {% for skill in candidate.get_soft_skills_list %}
+                        {% for skill in candidate.get_soft_skills_list|slice:":3" %}
                         <span class="skill-tag skill-tag--soft skill-tag--sm">{{ skill }}</span>
                         {% endfor %}
                     </div>
@@ -66,14 +108,15 @@
                     <div class="score-badge" title="Scout Score">—</div>
                 </div>
             </div>
+            </a>
             {% endfor %}
         </div>
     {% else %}
         <div class="empty-state">
             <i class="fa-solid fa-users empty-state-icon"></i>
-            {% if search %}
-                <p>Nenhum candidato encontrado para "{{ search }}".</p>
-                <a href="{% url 'candidate_list' %}" class="btn btn-gray mt-3">Limpar busca</a>
+            {% if has_filters %}
+                <p>Nenhum candidato encontrado com esses filtros.</p>
+                <a href="{% url 'candidate_list' %}" class="btn btn-gray mt-3">Limpar filtros</a>
             {% else %}
                 <p>Nenhum candidato registrado na plataforma ainda.</p>
             {% endif %}

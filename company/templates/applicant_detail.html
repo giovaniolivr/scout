@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/company.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/rating.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
@@ -42,97 +43,238 @@
                 {% endif %}
             </div>
 
-            <!-- Scout Score placeholder -->
+            <!-- Scout Score -->
             <div class="score-section">
                 <p class="score-label">Scout Score</p>
+                {% if candidate.scout_score is not None %}
+                <div class="score-circle-sm score-circle-filled">
+                    <span>{{ candidate.scout_score }}</span>
+                </div>
+                {% else %}
                 <div class="score-circle-sm">
                     <span>—</span>
                 </div>
                 <p class="score-hint">Calculado após feedbacks de empresas.</p>
+                {% endif %}
             </div>
         </section>
 
-        <!-- Application detail + status control -->
-        <section class="dashboard-card application-detail-card">
-            <h3 class="panel-title">Candidatura para: {{ job.title }}</h3>
-            {% if job.job_area or job.seniority %}
-            <p class="job-info-meta" style="margin-bottom: 1rem;">
-                {% if job.job_area %}{{ job.get_job_area_display }}{% endif %}
-                {% if job.job_area and job.seniority %}&nbsp;·&nbsp;{% endif %}
-                {% if job.seniority %}{{ job.get_seniority_display }}{% endif %}
-            </p>
-            {% endif %}
+        <!-- Right column -->
+        <div class="applicant-right-col">
 
-            <div class="application-meta-row">
-                <span class="application-meta-date">
-                    <i class="fa-regular fa-calendar"></i> Enviada em {{ application.applied_at|date:"d/m/Y" }}
-                </span>
-                <span class="application-status-badge {{ application.status }}">{{ application.get_status_display }}</span>
-            </div>
+            <!-- Application detail + status control -->
+            <section class="dashboard-card application-detail-card">
+                <h3 class="panel-title">Candidatura para: {{ job.title }}</h3>
+                {% if job.job_area or job.seniority %}
+                <p class="job-info-meta" style="margin-bottom: 1rem;">
+                    {% if job.job_area %}{{ job.get_job_area_display }}{% endif %}
+                    {% if job.job_area and job.seniority %}&nbsp;·&nbsp;{% endif %}
+                    {% if job.seniority %}{{ job.get_seniority_display }}{% endif %}
+                </p>
+                {% endif %}
 
-            {% if application.cv %}
-            <div class="application-message-box">
-                <p class="application-message-label">Currículo enviado</p>
-                <a href="{{ application.cv.url }}" target="_blank" rel="noopener" class="btn btn-gray btn-sm">
-                    <i class="fa-solid fa-file-arrow-down me-1"></i> Baixar currículo
-                </a>
-            </div>
-            {% endif %}
+                <div class="application-meta-row">
+                    <span class="application-meta-date">
+                        <i class="fa-regular fa-calendar"></i> Enviada em {{ application.applied_at|date:"d/m/Y" }}
+                    </span>
+                    <span class="application-status-badge {{ application.status }}">{{ application.get_status_display }}</span>
+                </div>
 
-            {% if application.message %}
-            <div class="application-message-box">
-                <p class="application-message-label">Mensagem do candidato</p>
-                <p class="application-message-text">{{ application.message }}</p>
-            </div>
-            {% else %}
-            <p class="no-message-note">O candidato não enviou mensagem.</p>
-            {% endif %}
+                {% if application.cv %}
+                <div class="application-message-box">
+                    <p class="application-message-label">Currículo enviado</p>
+                    <a href="{{ application.cv.url }}" target="_blank" rel="noopener" class="btn btn-gray btn-sm">
+                        <i class="fa-solid fa-file-arrow-down me-1"></i> Baixar currículo
+                    </a>
+                </div>
+                {% endif %}
 
-            <!-- Status control -->
-            <div class="status-control mt-4">
-                <h4 class="status-control-label">Atualizar status da candidatura</h4>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="status-buttons">
-                        <button
-                            type="submit"
-                            name="status"
-                            value="viewed"
-                            class="btn {% if application.status == 'viewed' %}status-btn--active status-btn--viewed{% else %}btn-gray{% endif %}"
-                            {% if application.status == 'viewed' %}disabled{% endif %}
-                        >
-                            Visualizado
-                        </button>
-                        <button
-                            type="submit"
-                            name="status"
-                            value="accepted"
-                            class="btn {% if application.status == 'accepted' %}status-btn--active status-btn--accepted{% else %}btn-gray{% endif %}"
-                            {% if application.status == 'accepted' %}disabled{% endif %}
-                        >
-                            Aprovado
-                        </button>
-                        <button
-                            type="submit"
-                            name="status"
-                            value="rejected"
-                            class="btn {% if application.status == 'rejected' %}status-btn--active status-btn--rejected{% else %}btn-gray{% endif %}"
-                            {% if application.status == 'rejected' %}disabled{% endif %}
-                        >
-                            Reprovado
-                        </button>
+                {% if application.message %}
+                <div class="application-message-box">
+                    <p class="application-message-label">Mensagem do candidato</p>
+                    <p class="application-message-text">{{ application.message }}</p>
+                </div>
+                {% else %}
+                <p class="no-message-note">O candidato não enviou mensagem.</p>
+                {% endif %}
+
+                <!-- Status control -->
+                {% if not application.status == 'accepted' and not application.status == 'rejected' %}
+                <div class="status-control mt-4">
+                    <h4 class="status-control-label">Atualizar status da candidatura</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="status-buttons">
+                            <button type="submit" name="status" value="viewed"
+                                class="btn {% if application.status == 'viewed' %}status-btn--active status-btn--viewed{% else %}btn-gray{% endif %}"
+                                {% if application.status == 'viewed' %}disabled{% endif %}>
+                                Visualizado
+                            </button>
+                            <button type="submit" name="status" value="accepted"
+                                class="btn btn-gray">
+                                Aprovar
+                            </button>
+                            <button type="submit" name="status" value="rejected"
+                                class="btn btn-gray">
+                                Reprovar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="status-control mt-4">
+                    <p class="status-finalized-note">
+                        {% if application.status == 'accepted' %}
+                            <i class="fa-solid fa-circle-check me-1" style="color:#1a7a3a"></i> Candidatura aprovada
+                        {% else %}
+                            <i class="fa-solid fa-circle-xmark me-1" style="color:#a83232"></i> Candidatura reprovada
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+
+                <div class="back-link-row">
+                    <a href="{% url 'job_detail_company' job.id %}" class="btn btn-gray mt-3">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Voltar para a vaga
+                    </a>
+                </div>
+            </section>
+
+            <!-- Rating section — visible only after a final status -->
+            {% if application.status == 'accepted' or application.status == 'rejected' %}
+            <section class="dashboard-card rating-card">
+
+                {% if application.company_rated_at %}
+                <!-- Already rated -->
+                <h3 class="panel-title"><i class="fa-solid fa-circle-check me-2" style="color:#1a7a3a"></i>Avaliação enviada</h3>
+                {% if application.company_rating %}
+                <div class="submitted-stars">
+                    {% for i in "12345" %}
+                        <i class="fa-solid fa-star {% if forloop.counter <= application.company_rating %}star-filled{% else %}star-empty{% endif %}"></i>
+                    {% endfor %}
+                    <span class="submitted-stars-label">{{ application.company_rating }}/5</span>
+                </div>
+                {% endif %}
+                {% if existing_endorsements %}
+                <div class="submitted-endorsements">
+                    <p class="rating-section-label">Habilidades endorsadas</p>
+                    <div class="endorsement-pills">
+                        {% for skill in existing_endorsements %}
+                        <span class="endorsement-pill endorsement-pill--submitted">
+                            <i class="fa-solid fa-check"></i> {{ skill }}
+                        </span>
+                        {% endfor %}
                     </div>
+                </div>
+                {% endif %}
+                {% if application.company_comment %}
+                <p class="submitted-comment">"{{ application.company_comment }}"</p>
+                {% endif %}
+
+                {% else %}
+                <!-- Rating form -->
+                <h3 class="panel-title">Avaliar candidato</h3>
+                <p class="rating-intro">
+                    Avalie a experiência com {{ candidate.user.first_name }}. Todos os campos são opcionais —
+                    você pode enviar apenas as estrelas, apenas habilidades, ou deixar um comentário.
+                </p>
+
+                <form method="post" id="ratingForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="rate_candidate">
+
+                    <!-- Star rating -->
+                    <div class="rating-section">
+                        <p class="rating-section-label">Impressão geral <span class="optional-label">(opcional)</span></p>
+                        <div class="star-rating-group" id="starGroup">
+                            {% for i in "54321" %}
+                            <input type="radio" id="cstar{{ i }}" name="company_rating" value="{{ i }}">
+                            <label for="cstar{{ i }}" title="{{ i }} estrela{{ i|pluralize }}">
+                                <i class="fa-solid fa-star"></i>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% if rating_error %}
+                        <p class="input-error mt-1">{{ rating_error }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Skill endorsements — full list, searchable -->
+                    <div class="rating-section">
+                        <p class="rating-section-label">
+                            Habilidades observadas <span class="optional-label">(opcional — selecione as que {{ candidate.user.first_name }} demonstrou)</span>
+                        </p>
+                        <input
+                            type="text"
+                            id="skillSearch"
+                            class="email-input skill-search-filter"
+                            placeholder="Buscar habilidade…"
+                            autocomplete="off"
+                        >
+                        <div class="endorsement-pills" id="endorsementPills" style="margin-top:0.6rem;">
+                            {% for skill in all_soft_skills %}
+                            <label class="endorsement-pill" data-skill="{{ skill|lower }}">
+                                <input type="checkbox" name="endorsed_skills" value="{{ skill }}" class="endorsement-checkbox">
+                                <i class="fa-regular fa-circle endorsement-icon"></i>
+                                {{ skill }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="rating-section">
+                        <p class="rating-section-label">Comentário <span class="optional-label">(opcional)</span></p>
+                        <textarea
+                            name="company_comment"
+                            class="email-input"
+                            rows="3"
+                            placeholder="Como foi a experiência com esse candidato? (visível apenas para o sistema)"
+                            style="resize: vertical;"
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-black w-100 mt-2">Enviar avaliação</button>
+                    <p class="rating-skip-note">Você pode enviar sem preencher nada — o importante é fechar o ciclo de contratação.</p>
                 </form>
-            </div>
+                {% endif %}
 
-            <div class="back-link-row">
-                <a href="{% url 'job_detail_company' job.id %}" class="btn btn-gray mt-3">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Voltar para a vaga
-                </a>
-            </div>
-        </section>
+            </section>
+            {% endif %}
 
+        </div><!-- .applicant-right-col -->
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle endorsement pill visual state on checkbox change
+document.querySelectorAll('.endorsement-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+        var pill = cb.closest('.endorsement-pill');
+        var icon = pill.querySelector('.endorsement-icon');
+        if (cb.checked) {
+            pill.classList.add('endorsement-pill--selected');
+            icon.className = 'fa-solid fa-circle-check endorsement-icon';
+        } else {
+            pill.classList.remove('endorsement-pill--selected');
+            icon.className = 'fa-regular fa-circle endorsement-icon';
+        }
+    });
+});
+
+// Live search filter for skill pills
+var skillSearch = document.getElementById('skillSearch');
+if (skillSearch) {
+    skillSearch.addEventListener('input', function() {
+        var query = this.value.toLowerCase().trim();
+        document.querySelectorAll('#endorsementPills .endorsement-pill').forEach(function(pill) {
+            var skill = pill.getAttribute('data-skill') || '';
+            pill.style.display = (!query || skill.includes(query)) ? '' : 'none';
+        });
+    });
+}
+</script>
 {% endblock %}
