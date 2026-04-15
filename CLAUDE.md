@@ -1,5 +1,9 @@
 # Scout — Development Rules
 
+## Project Status (as of 2026-04-15)
+
+**Core development is complete.** All features required for the final academic project have been implemented and approved. The project is now in the **deploy phase** — the next step is building the portfolio site and then deploying Scout to a production environment and linking it from there. No new features are planned for this codebase at this time.
+
 ## Mocking Policy
 
 **Never mock platform/software internals.** Authentication, sessions, form submission, database writes, URL routing logic, and backend views must always be implemented correctly with real Django code.
