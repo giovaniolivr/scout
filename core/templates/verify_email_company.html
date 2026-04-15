@@ -2,6 +2,13 @@
 {% load static %}
 
 {% block content %}
+{% if demo_verify_url %}
+<div class="alert alert-warning text-center mx-auto mt-3" style="max-width:520px; border-radius:10px;">
+    <strong>⚠️ Ambiente de demonstração</strong><br>
+    Em produção, este link seria enviado por e-mail.<br>
+    <a href="{{ demo_verify_url }}" class="btn btn-black mt-2" style="font-size:.85rem;">Clique aqui para verificar sua conta</a>
+</div>
+{% endif %}
 <div class="verify-container text-center">
     <h4>Verifique o e-mail da sua empresa</h4>
 

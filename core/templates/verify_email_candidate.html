@@ -2,6 +2,13 @@
 {% load static %}
 
 {% block content %}
+{% if demo_code %}
+<div class="alert alert-warning text-center mx-auto mt-3" style="max-width:420px; border-radius:10px;">
+    <strong>⚠️ Ambiente de demonstração</strong><br>
+    Em produção, este código seria enviado por e-mail.<br>
+    Seu código de verificação é: <strong style="font-size:1.3rem; letter-spacing:.2rem;">{{ demo_code }}</strong>
+</div>
+{% endif %}
 <div class="verify-container text-center">
     <h4>
         Digite o código de 4 dígitos enviado para <br>

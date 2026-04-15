@@ -47,6 +47,7 @@ def register_candidate(request):
 
         token = EmailVerificationToken.generate_candidate_code(email)
         request.session['registration_candidate_email'] = email
+        request.session['demo_candidate_code'] = token.token  # shown in demo banner
 
         send_mail(
             subject='Seu código de verificação Scout',
@@ -66,6 +67,8 @@ def verify_email_candidate(request):
     if not email:
         return redirect('register_candidate')
 
+    demo_code = request.session.pop('demo_candidate_code', None)
+
     if request.method == 'POST':
         code = (
             request.POST.get('code_1', '') +
@@ -83,11 +86,11 @@ def verify_email_candidate(request):
             )
         except EmailVerificationToken.DoesNotExist:
             messages.error(request, 'Código inválido. Tente novamente.')
-            return render(request, 'verify_email_candidate.html', {'email': email, 'hide_nav_links': True})
+            return render(request, 'verify_email_candidate.html', {'email': email, 'hide_nav_links': True, 'demo_code': None})
 
         if token.is_expired():
             messages.error(request, 'Código expirado. Solicite um novo.')
-            return render(request, 'verify_email_candidate.html', {'email': email, 'hide_nav_links': True})
+            return render(request, 'verify_email_candidate.html', {'email': email, 'hide_nav_links': True, 'demo_code': None})
 
         token.is_used = True
         token.save()
@@ -95,7 +98,7 @@ def verify_email_candidate(request):
 
         return redirect('register_details_candidate')
 
-    return render(request, 'verify_email_candidate.html', {'email': email, 'hide_nav_links': True})
+    return render(request, 'verify_email_candidate.html', {'email': email, 'hide_nav_links': True, 'demo_code': demo_code})
 
 
 def resend_candidate_code(request):
@@ -304,6 +307,7 @@ def register_details_company(request):
         del request.session['registration_company_email']
         del request.session['registration_company_cnpj']
 
+        request.session['demo_company_verify_url'] = verify_url  # shown in demo banner
         return redirect('verify_email_company')
 
     return render(request, 'register_details_company.html', {'hide_nav_links': True})
@@ -311,9 +315,10 @@ def register_details_company(request):
 
 def verify_email_company(request):
     token_value = request.GET.get('token', '')
+    demo_verify_url = request.session.pop('demo_company_verify_url', None)
 
     if not token_value:
-        return render(request, 'verify_email_company.html', {'hide_nav_links': True})
+        return render(request, 'verify_email_company.html', {'hide_nav_links': True, 'demo_verify_url': demo_verify_url})
 
     try:
         token = EmailVerificationToken.objects.get(
