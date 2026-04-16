@@ -50,6 +50,9 @@
                 {% if cv_error %}
                     <p class="input-error">{{ cv_error }}</p>
                 {% endif %}
+                <button type="button" id="mock-cv-btn" class="btn btn-gray btn-sm mt-2" style="font-size:0.78rem; padding:0.3rem 0.8rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Demo: preencher automaticamente
+                </button>
             </div>
 
             <div class="apply-field-group">
@@ -71,17 +74,33 @@
 </div>
 
 <script>
-document.getElementById('cv-input').addEventListener('change', function() {
+function updateCvLabel(file) {
     var label = document.getElementById('cv-upload-text');
     var uploadLabel = document.getElementById('cv-label');
+    label.textContent = file.name;
+    uploadLabel.classList.add('cv-upload-label--selected');
+    uploadLabel.classList.remove('cv-upload-label--error');
+}
+
+document.getElementById('cv-input').addEventListener('change', function() {
     if (this.files && this.files[0]) {
-        label.textContent = this.files[0].name;
-        uploadLabel.classList.add('cv-upload-label--selected');
-        uploadLabel.classList.remove('cv-upload-label--error');
+        updateCvLabel(this.files[0]);
     } else {
-        label.textContent = 'Clique para selecionar o arquivo';
-        uploadLabel.classList.remove('cv-upload-label--selected');
+        document.getElementById('cv-upload-text').textContent = 'Clique para selecionar o arquivo';
+        document.getElementById('cv-label').classList.remove('cv-upload-label--selected');
     }
+});
+
+document.getElementById('mock-cv-btn').addEventListener('click', function() {
+    // Minimal valid PDF content so the server-side extension/size check passes
+    var pdfContent = '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj 3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\nxref\n0 4\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n%%EOF';
+    var blob = new Blob([pdfContent], { type: 'application/pdf' });
+    var mockFile = new File([blob], 'curriculo_demo.pdf', { type: 'application/pdf' });
+    var dt = new DataTransfer();
+    dt.items.add(mockFile);
+    var input = document.getElementById('cv-input');
+    input.files = dt.files;
+    updateCvLabel(mockFile);
 });
 </script>
 {% endblock %}

@@ -418,6 +418,7 @@ def apply_job(request, job_id):
             cv=cv_file,
         )
 
+        profile.recalculate_internal_score()
         messages.success(request, f'Candidatura enviada para "{job.title}"!')
         return redirect('search_jobs')
 

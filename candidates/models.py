@@ -39,6 +39,9 @@ class CandidateProfile(models.Model):
     # Calculated and stored on every new company rating — see recalculate_scout_score()
     scout_score = models.IntegerField(null=True, blank=True)
 
+    # Internal cumulative score — never shown to users; used for platform ranking
+    internal_score = models.IntegerField(default=0)
+
     # Skills — stored as comma-separated strings; populated via onboarding and profile edit.
     hard_skills = models.TextField(blank=True, default='')
     soft_skills = models.TextField(blank=True, default='')
@@ -89,6 +92,35 @@ class CandidateProfile(models.Model):
 
         self.scout_score = min(100, base + bonus)
         self.save(update_fields=['scout_score'])
+
+    def recalculate_internal_score(self):
+        """
+        Internal Score — cumulative, never shown to users.
+        Grows over time by rewarding sustained engagement and quality signals.
+
+        Components:
+          - 10 pts per application submitted
+          - 20 pts per completed rating cycle (company submitted a rating)
+          -  5 pts per skill endorsement received
+          -  3 pts per optional profile field filled (max 7 fields × 3 = 21)
+        """
+        apps = self.applications.all()
+        total_apps = apps.count()
+        rated_apps = apps.filter(company_rated_at__isnull=False).count()
+        endorsements = self.endorsements.count()
+
+        filled = sum([
+            bool(self.bio),
+            bool(self.profile_cv),
+            bool(self.linkedin_url),
+            bool(self.hard_skills),
+            bool(self.soft_skills),
+            bool(self.languages),
+            bool(self.portfolio_url or self.github_url),
+        ])
+
+        self.internal_score = (total_apps * 10) + (rated_apps * 20) + (endorsements * 5) + (filled * 3)
+        self.save(update_fields=['internal_score'])
 
     def get_hard_skills_list(self):
         return [s.strip() for s in self.hard_skills.split(',') if s.strip()]

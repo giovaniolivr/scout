@@ -261,7 +261,7 @@ def applicant_detail(request, job_id, application_id):
 
                 # Record skill endorsements — any skill from the canonical list is valid,
                 # not just what the candidate listed on their profile.
-                valid_skills = set(SOFT_SKILLS)
+                valid_skills = set(SOFT_SKILL_CATEGORIES)
                 for skill in endorsed_skills:
                     if skill in valid_skills:
                         SkillEndorsement.objects.get_or_create(
@@ -271,8 +271,9 @@ def applicant_detail(request, job_id, application_id):
                             skill_name=skill,
                         )
 
-                # Recalculate Scout Score now that a new rating exists
+                # Recalculate both scores now that a new rating/endorsement exists
                 candidate.recalculate_scout_score()
+                candidate.recalculate_internal_score()
 
                 messages.success(request, 'Avaliação enviada com sucesso.')
                 return redirect('applicant_detail', job_id=job.id, application_id=application.id)
@@ -299,13 +300,18 @@ def applicant_detail(request, job_id, application_id):
         application.endorsements.values_list('skill_name', flat=True)
     ) if application.company_rated_at else set()
 
+    candidate_skills_set = set(candidate.get_soft_skills_list())
+    candidate_soft_skills = [s for s in SOFT_SKILL_CATEGORIES if s in candidate_skills_set]
+    extra_soft_skills = [s for s in SOFT_SKILL_CATEGORIES if s not in candidate_skills_set]
+
     return render(request, 'applicant_detail.html', {
         'job': job,
         'application': application,
         'candidate': candidate,
         'rating_error': rating_error,
         'existing_endorsements': existing_endorsements,
-        'all_soft_skills': SOFT_SKILLS,
+        'candidate_soft_skills': candidate_soft_skills,
+        'extra_soft_skills': extra_soft_skills,
     })
 
 
@@ -329,7 +335,7 @@ def candidate_list(request):
         CandidateProfile.objects
         .filter(is_onboarded=True)
         .select_related('user')
-        .order_by('user__first_name')
+        .order_by('-internal_score', 'user__first_name')
     )
 
     if search:
@@ -338,7 +344,7 @@ def candidate_list(request):
             candidates.filter(user__last_name__icontains=search) |
             candidates.filter(hard_skills__icontains=search) |
             candidates.filter(soft_skills__icontains=search)
-        ).filter(is_onboarded=True).select_related('user').order_by('user__first_name')
+        ).filter(is_onboarded=True).select_related('user').order_by('-internal_score', 'user__first_name')
 
     if area and area in VALID_JOB_AREAS:
         candidates = candidates.filter(desired_area=area)

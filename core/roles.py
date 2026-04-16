@@ -60,37 +60,9 @@ LANGUAGES = [
     'Russo',
 ]
 
-# Soft skills that companies can endorse on candidates.
-# This is the canonical list — used both on candidate profiles and on the
-# company endorsement form (companies can endorse any skill, not just the
-# candidate's listed ones).
-SOFT_SKILLS = [
-    'Comunicação',
-    'Trabalho em equipe',
-    'Liderança',
-    'Resolução de problemas',
-    'Criatividade',
-    'Adaptabilidade',
-    'Proatividade',
-    'Organização',
-    'Gestão de tempo',
-    'Pensamento crítico',
-    'Empatia',
-    'Inteligência emocional',
-    'Atenção aos detalhes',
-    'Autonomia',
-    'Aprendizado rápido',
-    'Foco em resultados',
-    'Colaboração',
-    'Flexibilidade',
-    'Ética profissional',
-    'Comprometimento',
-    'Negociação',
-    'Apresentação / Oratória',
-    'Escrita profissional',
-    'Gestão de conflitos',
-    'Pensamento analítico',
-]
+# Soft skills for company endorsements — unified with the candidate skill list
+# so that every skill a candidate can add to their profile can also be endorsed.
+from core.skills import SOFT_SKILL_CATEGORIES as SOFT_SKILLS
 
 # Qualities that candidates can endorse on companies after a hiring process.
 COMPANY_QUALITIES = [

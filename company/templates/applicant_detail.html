@@ -199,7 +199,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Skill endorsements — full list, searchable -->
+                    <!-- Skill endorsements — candidate's own skills shown first, full list searchable -->
                     <div class="rating-section">
                         <p class="rating-section-label">
                             Habilidades observadas <span class="optional-label">(opcional — selecione as que {{ candidate.user.first_name }} demonstrou)</span>
@@ -208,18 +208,31 @@
                             type="text"
                             id="skillSearch"
                             class="email-input skill-search-filter"
-                            placeholder="Buscar habilidade…"
+                            placeholder="Buscar mais habilidades…"
                             autocomplete="off"
                         >
                         <div class="endorsement-pills" id="endorsementPills" style="margin-top:0.6rem;">
-                            {% for skill in all_soft_skills %}
-                            <label class="endorsement-pill" data-skill="{{ skill|lower }}">
+                            {% for skill in candidate_soft_skills %}
+                            <label class="endorsement-pill endorsement-pill--candidate" data-skill="{{ skill|lower }}" data-extra="false">
                                 <input type="checkbox" name="endorsed_skills" value="{{ skill }}" class="endorsement-checkbox">
                                 <i class="fa-regular fa-circle endorsement-icon"></i>
                                 {{ skill }}
                             </label>
                             {% endfor %}
+                            {% if extra_soft_skills %}
+                            {% if candidate_soft_skills %}<div class="endorsement-divider" id="endorsementDivider" style="display:none;"></div>{% endif %}
+                            {% for skill in extra_soft_skills %}
+                            <label class="endorsement-pill endorsement-pill--extra" data-skill="{{ skill|lower }}" data-extra="true" style="display:none;">
+                                <input type="checkbox" name="endorsed_skills" value="{{ skill }}" class="endorsement-checkbox">
+                                <i class="fa-regular fa-circle endorsement-icon"></i>
+                                {{ skill }}
+                            </label>
+                            {% endfor %}
+                            {% endif %}
                         </div>
+                        {% if extra_soft_skills %}
+                        <p class="skill-search-hint" id="skillSearchHint">Use a busca acima para ver mais habilidades.</p>
+                        {% endif %}
                     </div>
 
                     <!-- Comment -->
@@ -265,15 +278,31 @@ document.querySelectorAll('.endorsement-checkbox').forEach(function(cb) {
     });
 });
 
-// Live search filter for skill pills
+// Live search filter for skill pills — reveals hidden extra pills when searched
 var skillSearch = document.getElementById('skillSearch');
 if (skillSearch) {
     skillSearch.addEventListener('input', function() {
         var query = this.value.toLowerCase().trim();
+        var divider = document.getElementById('endorsementDivider');
+        var hint = document.getElementById('skillSearchHint');
+        var hasVisibleExtra = false;
+
         document.querySelectorAll('#endorsementPills .endorsement-pill').forEach(function(pill) {
             var skill = pill.getAttribute('data-skill') || '';
-            pill.style.display = (!query || skill.includes(query)) ? '' : 'none';
+            var isExtra = pill.getAttribute('data-extra') === 'true';
+
+            if (isExtra) {
+                var show = query && skill.includes(query);
+                pill.style.display = show ? '' : 'none';
+                if (show) hasVisibleExtra = true;
+            } else {
+                // candidate's own pills: always visible, but hide if query doesn't match
+                pill.style.display = (!query || skill.includes(query)) ? '' : 'none';
+            }
         });
+
+        if (divider) divider.style.display = hasVisibleExtra ? '' : 'none';
+        if (hint) hint.style.display = query ? 'none' : '';
     });
 }
 </script>

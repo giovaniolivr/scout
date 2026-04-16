@@ -105,7 +105,7 @@
                     {% endif %}
                 </div>
                 <div class="candidate-card-score">
-                    <div class="score-badge" title="Scout Score">—</div>
+                    <div class="score-badge" title="Scout Score">{{ candidate.scout_score|default:"—" }}</div>
                 </div>
             </div>
             </a>
