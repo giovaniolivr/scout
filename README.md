@@ -27,6 +27,3 @@ pip install -r requirements.txt
 # Rodar o servidor
 python manage.py runserver
 ```
-## Status
-
-Projeto em desenvolvimento inicial (fase de prototipagem).
